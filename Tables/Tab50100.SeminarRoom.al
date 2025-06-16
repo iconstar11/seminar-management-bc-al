@@ -29,17 +29,21 @@ table 50148 "Seminar Room"
             Caption = 'City';
             TableRelation = "Post Code".City;
 
-            trigger OnValidate()
-            var
-                Codes: Record "Post Code";
-            begin
-                Codes.Reset();
-                if Codes.Get(City) then begin
-                    "Country Code " := Codes."Country/Region Code";
-                    "Post Code" := Codes.Code;
-                end;
+            // trigger OnValidate()
+            // var
+            //     PostCode: Record "Post Code";
+            // begin
+            //     // Only validate if City is not empty
+            //     if City <> '' then begin
+            //         // Check for a matching Post Code based on City and Post Code Code (if available)
+            //         PostCode.SetRange(City, City);
+            //         if "Post Code" <> '' then
+            //             PostCode.SetRange(Code, "Post Code");
 
-            end;
+            //         if not PostCode.FindFirst() then
+            //             Error('The City "%1" with Post Code "%2" does not exist in the Post Code table.', City, "Post Code");
+            //     end;
+            // end;
 
 
 
@@ -116,5 +120,6 @@ table 50148 "Seminar Room"
             Clustered = true;
         }
     }
+
 
 }

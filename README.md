@@ -4,26 +4,26 @@ This project is a custom AL extension for Microsoft Dynamics 365 Business Centra
 
 ---
 
-## 🚀 Project Purpose
+##  Project Purpose
 
 - Apply modern AL development techniques
 - Learn extension-based design for real-world ERP systems
-- Build fast domain authority using focused, high-impact practice (inspired by *The 4-Hour Work Week* and the 80/20 principle)
+
 - Modernize ideas from legacy Navision 4.0 training materials into AL
 
 ---
 
-## 🧱 Features
+##  Features
 
-- 📋 Create and manage seminar records
-- 👥 Register participants to a seminar
-- 🔢 Track number of attendees
-- ⚠️ Enforce registration limits
-- 🧠 Planned: Auto-close registration when full
+-  Create and manage seminar records
+-  Register participants to a seminar
+-  Track number of attendees
+-  Enforce registration limits
+-  Planned: Auto-close registration when full
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **AL Language** (Microsoft Dynamics 365 Business Central)
 - **Visual Studio Code** with AL extension
@@ -31,7 +31,7 @@ This project is a custom AL extension for Microsoft Dynamics 365 Business Centra
 
 ---
 
-## 📚 Learning Highlights
+##  Learning Highlights
 
 This project helped me practice:
 
@@ -44,26 +44,19 @@ This project helped me practice:
 
 ---
 
-## 📈 Next Steps
 
-- [ ] Add automatic seminar status updates
-- [ ] Add custom report or Excel export of participants
-- [ ] Subscribe to BC events to extend existing behavior
-- [ ] Write a blog post or video explaining the full build
 
----
-
-## 🙋‍♂️ About the Developer
+## 🙋 About the Developer
 
 I'm a Computer Science student currently interning with a company that uses Business Central. I'm focused on becoming skilled in AL and ERP development, and sharing what I learn along the way.
 
-Connect with me on [LinkedIn](https://www.linkedin.com/) (add your link here!).
+Connect with me on [LinkedIn](https://www.linkedin.com/in/antony-kinuthia-210296239/).
 
 ---
 
 
 
-## 📜 License
+##  License
 
 MIT — free to use, modify, and share.
 

@@ -72,5 +72,30 @@ page 50104 "Seminar Card"
 
             }
         }
+
+    }
+    actions
+    {
+        area(Processing)
+        {
+            action(CloseSeminar)
+            {
+                Caption = 'Close Seminar';
+                Image = Stop;
+                trigger OnAction()
+                var
+                    SeminarRec: Record "Seminar Registration Header";
+
+                begin
+                    SeminarRec.Get(Rec."No.");
+                    SeminarRec.Status := SeminarRec.Status::Closed;
+                    SeminarRec.Modify();
+                    Message('Seminar %1 registration has been closed', SeminarRec."Seminar Name");
+
+                end;
+
+
+            }
+        }
     }
 }
