@@ -12,6 +12,7 @@ page 50104 "Seminar Card"
     {
         area(Content)
         {
+            
             group(General)
             {
                 Caption = 'General';
@@ -94,6 +95,22 @@ page 50104 "Seminar Card"
 
                 end;
 
+
+            }
+            action(CheckSeminarState)
+            {
+                trigger OnAction()
+                var
+                    MaxCount: Integer;
+                    MinCount: Integer;
+
+                begin
+                    MaxCount := Rec."Maximum Participants";
+                    MinCount := Rec."Minimum Participarts";
+
+                    if MaxCount <= MinCount then
+                        Message('Max partipants cant be less to minparticipants');
+                end;
 
             }
         }
