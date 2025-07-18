@@ -29,28 +29,36 @@ table 50148 "Seminar Room"
             Caption = 'City';
             TableRelation = "Post Code".City;
 
-            // trigger OnValidate()
-            // var
-            //     PostCode: Record "Post Code";
-            // begin
-            //     // Only validate if City is not empty
-            //     if City <> '' then begin
-            //         // Check for a matching Post Code based on City and Post Code Code (if available)
-            //         PostCode.SetRange(City, City);
-            //         if "Post Code" <> '' then
-            //             PostCode.SetRange(Code, "Post Code");
+            trigger OnValidate()
+            var
+                PostCode: Record "Post Code";
 
-            //         if not PostCode.FindFirst() then
-            //             Error('The City "%1" with Post Code "%2" does not exist in the Post Code table.', City, "Post Code");
-            //     end;
-            // end;
-
-
+            begin
+                PostCode.Reset();
+                PostCode.SetRange(City, City);
+                if PostCode.FindFirst() then begin
+                    "Post Code" := PostCode.Code;
+                    "Country Code " := PostCode."Country/Region Code";
+                end;
+            end;
 
         }
         field(6; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
+            TableRelation = "Post Code";
+
+            trigger OnValidate()
+            begin
+                PostCodeRec.Reset();
+                PostCodeRec.SetRange(Code, "Post Code");
+
+                if PostCodeRec.FindFirst() then begin
+                    City := PostCodeRec.City;
+                    "Country Code " := PostCodeRec."Country/Region Code";
+                end;
+            end;
+
 
 
 
@@ -58,6 +66,8 @@ table 50148 "Seminar Room"
         field(7; "Country Code "; Code[30])
         {
             Caption = 'Country code ';
+            Editable = false;
+
 
         }
         field(8; "Phone No."; Text[30])
@@ -98,19 +108,34 @@ table 50148 "Seminar Room"
         field(16; "Resource No."; Code[20])
         {
             Caption = 'Resource No.';
-            TableRelation = Resource;
+            TableRelation = Resource."No." where(Type = const(Machine));
+            trigger OnValidate()
+            begin
+                if ResourceRec.Get("Resource No.") and (Name = '') then
+                    Name := ResourceRec.Name;
+            end;
         }
         field(17; "Comment "; Boolean)
         {
             Caption = 'Comment ';
+            Editable = false;
+            // FieldClass = FlowField;
+            // CalcFormula = exist("Comment Line" where("Room Code" = field(Code) ))
         }
-        field(18; "Internal/External"; Boolean)
+        field(18; "Internal/External"; Option)
         {
             Caption = 'Internal/External';
+            OptionMembers = Internal,External;
         }
         field(19; "Contact No. "; Code[20])
         {
             Caption = 'Contact No. ';
+            TableRelation = Contact;
+            trigger OnValidate()
+            begin
+                if ContactRec.Get("Contact No. ") and (Name = '') then
+                    Name := ContactRec.Name;
+            end;
         }
     }
     keys
@@ -120,6 +145,13 @@ table 50148 "Seminar Room"
             Clustered = true;
         }
     }
+
+    var
+        PostCodeRec: Record "Post Code";
+        ResourceRec: Record Resource;
+        ContactRec: Record Contact;
+
+
 
 
 }
