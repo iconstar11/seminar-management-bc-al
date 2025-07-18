@@ -8,14 +8,36 @@ table 50104 Seminar
         field(1; "No."; Code[30])
         {
             Caption = 'No.';
+            // trigger OnValidate()
+            // begin
+            //     if Rec."No." <> xRec."No." then begin
+            //         SeminarSetupRec.Get();
+            //         Rec."No." := NoSeriesCheck.GetNextNo(SeminarSetupRec."Seminar Nos.", Today, true);
+
+            //     end;
+            // end;
+        }
+        field(6; "Search Name "; Text[50])
+        {
+            Caption = 'Search Name ';
+
         }
         field(2; Name; Text[50])
         {
             Caption = 'Name';
+            trigger OnValidate()
+            begin
+                if ("Search Name " = (UpperCase(xRec."Search Name ")))
+                or ("Search Name " = '') then begin
+                    "Search Name " := UpperCase(Name);
+                end;
+            end;
+
         }
         field(3; "Seminar Duration"; Decimal)
         {
             Caption = 'Seminar Duration';
+            DecimalPlaces = 0 : 1;
         }
         field(4; "Minimum Participarts"; Integer)
         {
@@ -25,10 +47,7 @@ table 50104 Seminar
         {
             Caption = 'Maximum Participants';
         }
-        field(6; "Search Name "; Code[30])
-        {
-            Caption = 'Search Name ';
-        }
+
         field(7; Bloked; Boolean)
         {
             Caption = 'Bloked';
@@ -50,6 +69,7 @@ table 50104 Seminar
         field(11; "Seminar Price"; Decimal)
         {
             Caption = 'Seminar Price';
+            AutoFormatType = 1;
         }
         field(12; "Gen. Prod. Posting group"; Code[10])
         {
@@ -75,5 +95,13 @@ table 50104 Seminar
         {
             Clustered = true;
         }
+        key(SecondaryKey; "Search Name ")
+        {
+            Clustered = false;
+        }
+
     }
+    var
+        SeminarSetupRec: Record "Seminar SetUp";
+    // NoSeriesCheck: Codeunit "NoSeries";
 }
