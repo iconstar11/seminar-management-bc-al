@@ -29,7 +29,7 @@ table 50102 Instructor
                 getName: Record Resource;
             begin
                 getName.Reset();
-                if getName.Get("Resource No. ") then begin
+                if getName.Get("Resource No. ") and (Name = '') then begin
                     Name := getName.Name;
 
                 end;
