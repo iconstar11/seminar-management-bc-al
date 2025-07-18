@@ -1,5 +1,6 @@
 namespace ALProject.ALProject;
 using Microsoft.Foundation.Comment;
+using System.EMail;
 
 page 50149 "Seminar Room card"
 {
@@ -110,7 +111,7 @@ page 50149 "Seminar Room card"
                 Image = List;
                 Promoted = true;
                 ShortcutKey = 'F5';
-                RunObject = page "Seminar List";
+                RunObject = page "Seminar Room List";
 
             }
             action("Extended Text")
@@ -131,13 +132,21 @@ page 50149 "Seminar Room card"
                 Promoted = true;
                 PromotedCategory = Process;
                 trigger OnAction()
+                var
+                    Mail: Codeunit "Mail Management";
                 begin
-                    // Replace with your email logic
-
+                    if Rec."E-Mail" = '' then
+                        Error('No email address is specified.');
+                    Mail.CreateMail(Rec."E-Mail", '', '', '', '');
+                    CurrPage.UPDATE(false); // Refresh if needed
                 end;
             }
 
 
         }
     }
+    trigger OnAfterGetRecord()
+    begin
+        CurrPage.
+    end;
 }
