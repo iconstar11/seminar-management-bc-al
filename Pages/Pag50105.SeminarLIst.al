@@ -5,6 +5,7 @@ page 50105 "Seminar List"
     ApplicationArea = All;
     Caption = 'Seminar List';
     PageType = List;
+    UsageCategory = Lists;
     SourceTable = Seminar;
     Editable = false;
     CardPageId = 50104;
@@ -22,6 +23,7 @@ page 50105 "Seminar List"
                 field(Name; Rec.Name)
                 {
                     ToolTip = 'Specifies the value of the Name field.', Comment = '%';
+
                 }
                 field("Seminar Duration"; Rec."Seminar Duration")
                 {

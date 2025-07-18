@@ -7,13 +7,4 @@ tableextension 50100 "Contact Ext" extends Contact
 {
     LookupPageId = "Seminar Contact";
 
-
-    // fieldgroups
-    // {
-    //     fieldgroup(DropDown; "First Name" , Name)
-    //     {
-
-    //     }
-    // }
-
 }

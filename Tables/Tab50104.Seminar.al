@@ -117,6 +117,7 @@ table 50104 Seminar
 
         }
 
+
     }
     keys
     {
@@ -132,9 +133,7 @@ table 50104 Seminar
     }
     procedure AssistEdit(): Boolean
     var
-        SeminarSetupRec: Record "Seminar Setup";
         SeminarCopy: Record Seminar;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
         SeminarCopy := Rec; // Work with a local copy
 
@@ -143,13 +142,13 @@ table 50104 Seminar
         SeminarSetupRec.TestField("Seminar Nos.");
 
         // 2. Let the user select a series, or use the default one
-        if NoSeriesMgt.SelectSeries(SeminarSetupRec."Seminar Nos.", xRec."No. Series", SeminarCopy."No. Series") then begin
+        if NoSeriesCheck.SelectSeries(SeminarSetupRec."Seminar Nos.", xRec."No. Series", SeminarCopy."No. Series") then begin
 
             // 3. Set the series on the Seminar No.
             SeminarSetupRec.Get(); // Reload to be extra safe
             SeminarSetupRec.TestField("Seminar Nos.");
 
-            NoSeriesMgt.SetSeries(SeminarCopy."No."); // Assign the new number
+            NoSeriesCheck.SetSeries(SeminarCopy."No."); // Assign the new number
 
             Rec := SeminarCopy; // Update the original record with the changes
             exit(true); // Success
@@ -159,17 +158,32 @@ table 50104 Seminar
     end;
 
     trigger OnInsert()
-    var
-        SeminarSetupRec: Record "Seminar Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
         // Auto-assign a Seminar No. if it's empty
         if "No." = '' then begin
             SeminarSetupRec.Get();
-            SeminarSetupRec.TestField("Seminar Nos"); // Ensure setup exists
-            NoSeriesMgt.InitSeries(SeminarSetupRec."Seminar Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+            SeminarSetupRec.TestField("Seminar Nos."); // Ensure setup exists
+            NoSeriesCheck.InitSeries(SeminarSetupRec."Seminar Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
     end;
+
+    trigger OnDelete()
+    var
+        CommentLineRec: Record "Comment Line";
+        ExtTextHeaderRec: Record "Extended Text Header";
+    begin
+        // Delete associated comment lines
+        CommentLineRec.SetRange("Table Name", Database::Seminar);
+        CommentLineRec.SetRange("No.", "No.");
+        CommentLineRec.DeleteAll();
+
+        // Delete associated extended text headers
+        ExtTextHeaderRec.SetRange("Table Name", Database::Seminar);
+        ExtTextHeaderRec.SetRange("No.", "No.");
+        ExtTextHeaderRec.DeleteAll();
+    end;
+
+
 
 
 

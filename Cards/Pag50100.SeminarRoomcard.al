@@ -135,18 +135,13 @@ page 50149 "Seminar Room card"
                 var
                     Mail: Codeunit "Mail Management";
                 begin
-                    if Rec."E-Mail" = '' then
-                        Error('No email address is specified.');
-                    Mail.CreateMail(Rec."E-Mail", '', '', '', '');
-                    CurrPage.UPDATE(false); // Refresh if needed
+                    // if Rec."E-Mail" <> '' then
+                    //     Mail.OpenNewMessage(Rec."E-Mail");
                 end;
             }
 
 
         }
     }
-    trigger OnAfterGetRecord()
-    begin
-        CurrPage.
-    end;
+
 }
