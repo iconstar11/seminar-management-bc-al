@@ -1,4 +1,6 @@
 namespace ALProject.ALProject;
+using Microsoft.Foundation.Comment;
+using Microsoft.Foundation.ExtendedText;
 
 page 50101 "Seminar Room List"
 {
@@ -6,6 +8,7 @@ page 50101 "Seminar Room List"
     Caption = 'Seminar Room List';
     PageType = List;
     SourceTable = "Seminar Room";
+    Editable = false;
     CardPageId = 50149;
 
     layout
@@ -34,6 +37,31 @@ page 50101 "Seminar Room List"
                     ToolTip = 'Specifies the value of the Resource No. field.', Comment = '%';
                 }
 
+            }
+        }
+    }
+    actions
+    {
+        area(Processing)
+        {
+            action("Open Card")
+            {
+                Caption = 'Open Card';
+                RunObject = page "Seminar Room card";
+                Promoted = true;
+
+            }
+            action(Comments)
+            {
+                Caption = 'Open Comments Sheet';
+                RunObject = page "Comment Sheet";
+                Promoted = true;
+            }
+            action(Seminar)
+            {
+                Caption = 'Extended Text';
+                RunObject = page "Extended Text";
+                Promoted = true;
             }
         }
     }
