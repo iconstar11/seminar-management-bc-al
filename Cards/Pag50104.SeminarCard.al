@@ -1,4 +1,5 @@
 namespace ALProject.ALProject;
+using Microsoft.Foundation.ExtendedText;
 
 page 50104 "Seminar Card"
 {
@@ -12,18 +13,27 @@ page 50104 "Seminar Card"
     {
         area(Content)
         {
-            
+
             group(General)
             {
                 Caption = 'General';
 
                 field("No."; Rec."No.")
                 {
-                    ToolTip = 'Specifies the value of the No. field.', Comment = '%';
+                    ApplicationArea = All;
+                    trigger OnValidate()
+                    begin
+                        if Rec.AssistEdit() then
+                            CurrPage.Update();
+                    end;
                 }
                 field(Name; Rec.Name)
                 {
                     ToolTip = 'Specifies the value of the Name field.', Comment = '%';
+                }
+                field("Search Name "; Rec."Search Name ")
+                {
+                    ToolTip = 'Specifies the value of the Search Name field.', Comment = '%';
                 }
                 field("Seminar Duration"; Rec."Seminar Duration")
                 {
@@ -37,10 +47,7 @@ page 50104 "Seminar Card"
                 {
                     ToolTip = 'Specifies the value of the Maximum Participants field.', Comment = '%';
                 }
-                field("Search Name "; Rec."Search Name ")
-                {
-                    ToolTip = 'Specifies the value of the Search Name field.', Comment = '%';
-                }
+
                 field(Bloked; Rec.Bloked)
                 {
                     ToolTip = 'Specifies the value of the Bloked field.', Comment = '%';
@@ -75,8 +82,42 @@ page 50104 "Seminar Card"
         }
 
     }
+
+
+
     actions
     {
+        area(Navigation)
+        {
+            group(Comment)
+            {
+                Caption = 'Comment';
+                Image = Comment;
+
+                action(SeminarList)
+                {
+                    Caption = 'Seminar List';
+                    ShortcutKey = 'F5';
+                    RunObject = Page 50105; // Seminar List page
+                    Image = List;
+                }
+
+                action(OpenComments)
+                {
+                    Caption = 'Comments';
+                    RunObject = Page 124; // Comment Sheet
+                    RunPageLink = "No." = FIELD("No.");
+                }
+
+                action(OpenExtendedTexts)
+                {
+                    Caption = 'Extended Texts';
+                    RunObject = Page "Extended Text";
+                    RunPageLink = "No." = FIELD("No.");
+                }
+
+            }
+        }
         area(Processing)
         {
             action(CloseSeminar)
@@ -113,6 +154,23 @@ page 50104 "Seminar Card"
                 end;
 
             }
+            action(OpenCommentsFromField)
+            {
+                ApplicationArea = All;
+                Image = EditLines;
+                Caption = 'Comments';
+                trigger OnAction()
+                begin
+                    Page.Run(124, Rec);
+                end;
+            }
         }
     }
+
+    trigger OnAfterGetRecord()
+    begin
+        // Clear filter on "No." to ensure full record is shown
+        CurrPage.SetSelectionFilter(Rec);
+        Rec.SetRange("No.");
+    end;
 }
