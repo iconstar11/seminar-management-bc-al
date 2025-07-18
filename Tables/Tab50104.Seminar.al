@@ -8,14 +8,15 @@ table 50104 Seminar
         field(1; "No."; Code[30])
         {
             Caption = 'No.';
-            // trigger OnValidate()
-            // begin
-            //     if Rec."No." <> xRec."No." then begin
-            //         SeminarSetupRec.Get();
-            //         Rec."No." := NoSeriesCheck.GetNextNo(SeminarSetupRec."Seminar Nos.", Today, true);
+            trigger OnValidate()
+            begin
+                if Rec."No." <> xRec."No." then begin
+                    SeminarSetupRec.Get();
+                    NoSeriesCheck.TestManual(SeminarSetupRec."Seminar Nos.");
+                    "No. Series" := '';
 
-            //     end;
-            // end;
+                end;
+            end;
         }
         field(6; "Search Name "; Text[50])
         {
@@ -65,6 +66,17 @@ table 50104 Seminar
         {
             Caption = 'Job No.';
             TableRelation = Job;
+
+            trigger OnValidate()
+            var
+                JobRec: Record Job;
+            begin
+                if "Job No." <> '' then
+                    JobRec.Get("Job No.");
+                if JobRec.Blocked <> JobRec.Blocked::" " then
+                    Error('The Job %1 is blocked.', JobRec."No.");
+            end;
+
         }
         field(11; "Seminar Price"; Decimal)
         {
@@ -75,6 +87,22 @@ table 50104 Seminar
         {
             Caption = 'Gen. Prod. Posting group';
             TableRelation = "Gen. Product Posting Group";
+
+
+            trigger OnValidate()
+            var
+                GenProdPostingGrp: Record "Gen. Product Posting Group";
+            begin
+                if xRec."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then begin
+                    if GenProdPostingGrp.Get("Gen. Prod. Posting Group") then begin
+                        // Fallback logic if ValidateVatProdPostingGroup doesn't exist
+                        if GenProdPostingGrp."Def. VAT Prod. Posting Group" <> '' then
+                            Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group")
+                        else
+                            Error('The Gen. Product Posting Group %1 does not have a default VAT Prod. Posting Group.', "Gen. Prod. Posting Group");
+                    end;
+                end;
+            end;
         }
         field(13; "Vat Prod. Posting Group"; Code[10])
         {
@@ -88,6 +116,7 @@ table 50104 Seminar
             TableRelation = "No. Series";
 
         }
+
     }
     keys
     {
@@ -101,7 +130,38 @@ table 50104 Seminar
         }
 
     }
+    procedure AssistEdit(): Boolean
+    var
+        SeminarSetupRec: Record "Seminar Setup";
+        SeminarCopy: Record Seminar;
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+    begin
+        SeminarCopy := Rec; // Work with a local copy
+
+        // 1. Load setup record and ensure series exists
+        SeminarSetupRec.Get();
+        SeminarSetupRec.TestField("Seminar Nos.");
+
+        // 2. Let the user select a series, or use the default one
+        if NoSeriesMgt.SelectSeries(SeminarSetupRec."Seminar Nos.", xRec."No. Series", SeminarCopy."No. Series") then begin
+
+            // 3. Set the series on the Seminar No.
+            SeminarSetupRec.Get(); // Reload to be extra safe
+            SeminarSetupRec.TestField("Seminar Nos.");
+
+            NoSeriesMgt.SetSeries(SeminarCopy."No."); // Assign the new number
+
+            Rec := SeminarCopy; // Update the original record with the changes
+            exit(true); // Success
+        end;
+
+        exit(false); // User cancelled or no series selected
+    end;
+
+
     var
         SeminarSetupRec: Record "Seminar SetUp";
-    // NoSeriesCheck: Codeunit "NoSeries";
+        NoSeriesCheck: Codeunit NoSeriesManagement;
+
+
 }
