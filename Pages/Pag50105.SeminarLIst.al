@@ -56,4 +56,18 @@ page 50105 "Seminar List"
             }
         }
     }
+    actions
+    {
+        area(navigation)
+        {
+            action(OpenCard)
+            {
+                Caption = 'Card';
+                Image = Edit;
+                ShortcutKey = 'Shift+F5';
+                RunObject = Page "Seminar Card";
+                RunPageLink = "No." = FIELD("No.");
+            }
+        }
+    }
 }
