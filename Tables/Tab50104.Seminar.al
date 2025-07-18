@@ -158,6 +158,20 @@ table 50104 Seminar
         exit(false); // User cancelled or no series selected
     end;
 
+    trigger OnInsert()
+    var
+        SeminarSetupRec: Record "Seminar Setup";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+    begin
+        // Auto-assign a Seminar No. if it's empty
+        if "No." = '' then begin
+            SeminarSetupRec.Get();
+            SeminarSetupRec.TestField("Seminar Nos"); // Ensure setup exists
+            NoSeriesMgt.InitSeries(SeminarSetupRec."Seminar Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+        end;
+    end;
+
+
 
     var
         SeminarSetupRec: Record "Seminar SetUp";
