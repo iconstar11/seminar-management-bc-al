@@ -1,4 +1,5 @@
 namespace seminarmanagementbcal.seminarmanagementbcal;
+using ALProject.ALProject;
 
 page 50122 "Seminar Registration Card"
 {
@@ -111,6 +112,40 @@ page 50122 "Seminar Registration Card"
             {
                 // ApplicationArea = 
                 SubPageLink = "Document No." = field("No.");
+            }
+        }
+    }
+    actions
+    {
+        area(navigation)
+        {
+            group("Registration")
+            {
+                action("Registration List (F5)")
+                {
+                    Caption = 'Registration List';
+                    ShortcutKey = 'F5';
+                    RunObject = Page "Seminar Registration LIst";
+                    ApplicationArea = All;
+                }
+
+                action(Comments)
+                {
+                    Caption = 'Comments';
+                    RunObject = Page "Seminar Comment Sheet";
+                    RunPageLink = "No." = field("No.");
+                    ApplicationArea = All;
+                    RunPageMode = Edit;
+                }
+
+                action(Charges)
+                {
+                    Caption = 'Charges';
+                    RunObject = Page "Seminar Charges";
+                    RunPageLink = "Seminar Registration No" = field("No.");
+                    ApplicationArea = All;
+                    RunPageMode = Edit;
+                }
             }
         }
     }

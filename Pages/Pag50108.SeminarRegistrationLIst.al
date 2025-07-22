@@ -6,7 +6,8 @@ page 50108 "Seminar Registration LIst"
     Caption = 'Seminar Registration LIst';
     PageType = List;
     SourceTable = "Seminar Registration Header";
-    
+    Editable = false;
+
     layout
     {
         area(Content)

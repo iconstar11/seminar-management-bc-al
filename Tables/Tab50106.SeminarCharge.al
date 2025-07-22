@@ -19,11 +19,28 @@ table 50106 "Seminar Charge"
         {
             Caption = 'Job No.';
             TableRelation = Job;
+            trigger OnValidate()
+            var
+                JobRec: Record Job;
+            begin
+                JobRec.Reset();
+                if JobRec.Get() then
+                    if (JobRec.Blocked = JobRec.Blocked::All) or (JobRec.Blocked = JobRec.Blocked::Posting)
+                    then
+                        Error('The Job is bloked for posting or in all accounts')
+                    else if JobRec.Status in [JobRec.Status::Completed, JobRec.Status::Planning, JobRec.Status::Quote]
+                    then
+                        Error('The Job is in Completed, Planning or Quote status');
+            end;
         }
         field(4; Type; Option)
         {
             Caption = 'Type';
             OptionMembers = ,Resource,"G/L Account";
+            trigger OnValidate()
+            begin
+                Description := ' ';
+            end;
         }
         field(5; "No."; Code[20])
         {
@@ -101,4 +118,21 @@ table 50106 "Seminar Charge"
             Clustered = false;
         }
     }
+
+    var
+        SeminarRegHeaderRec: Record "Seminar Registration Header";
+
+    trigger OnInsert()
+    begin
+        if SeminarRegHeaderRec.Get() then
+            "Job No." := SeminarRegHeaderRec."Job No.";
+
+    end;
+
+    trigger OnDelete()
+    begin
+        TestField(Registred, false);
+    end;
+
+
 }
