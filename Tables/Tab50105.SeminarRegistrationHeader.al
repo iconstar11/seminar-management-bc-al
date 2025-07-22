@@ -148,4 +148,48 @@ table 50105 "Seminar Registration Header"
             SumIndexFields = Duration;
         }
     }
+
+    local procedure AssistEdit()
+    begin
+
+    end;
+
+    local procedure InitRecord()
+    begin
+        if "Posting Date" = 0D then
+            "Posting Date" := WorkDate();
+        "Document Date" := WorkDate();
+        SemSetUpRec.Get();
+        NoSeriesMgt.SetDefaultSeries("Posting No. Series", SemSetUpRec."Posted Sem. Registration Nos.");
+
+
+    end;
+
+    procedure AssistEdit(OldSemRegHeader: Record "Seminar Registration Header"): Boolean
+    var
+        SemSetup: Record "Seminar Setup";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NewNo: Code[20];
+        IsHandled: Boolean;
+    begin
+        SemSetup.Get();
+        if SemSetup."Seminar Nos." = '' then
+            Error(Text000); // "You must define a Seminar Nos. series in Seminar Setup."
+
+        IsHandled := NoSeriesMgt.SelectSeries(NewNo, SemSetup."Seminar Nos.", OldSemRegHeader."No.");
+        if not IsHandled then
+            exit(false);
+
+        NoSeriesMgt.SetSeries(NewNo);
+        "No." := NewNo;
+        exit(true);
+    end;
+
+    var
+        SemSetUpRec: Record "Seminar SetUp";
+
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+
+
 }
