@@ -26,11 +26,11 @@ table 50106 "Seminar Charge"
                 JobRec.Reset();
                 if JobRec.Get() then
                     if (JobRec.Blocked = JobRec.Blocked::All) or (JobRec.Blocked = JobRec.Blocked::Posting)
+                        then
+                        Error('The Job is bloked for posting or in all accounts');
+                if JobRec.Status <> JobRec.Status::Open
                     then
-                        Error('The Job is bloked for posting or in all accounts')
-                    else if JobRec.Status in [JobRec.Status::Completed, JobRec.Status::Planning, JobRec.Status::Quote]
-                    then
-                        Error('The Job is in Completed, Planning or Quote status');
+                    Error('The Job is in Completed, Planning or Quote status');
             end;
         }
         field(4; Type; Option)
@@ -47,6 +47,39 @@ table 50106 "Seminar Charge"
             Caption = 'No.';
             TableRelation = if (Type = const(Resource)) Resource
             else if (Type = const("G/L Account")) "G/L Account";
+
+            trigger OnValidate()
+            var
+                ResourceRec: Record Resource;
+                GlAccountRec: Record "G/L Account";
+            begin
+                case Type of
+                    Type::Resource:
+                        begin
+                            if ResourceRec.Get() then begin
+                                if ResourceRec.Blocked = true then
+                                    Error('The Resource is blocked for use');
+                                ResourceRec.TestField("Gen. Prod. Posting Group");
+                                "Gen. Prod. Posting Group" := ResourceRec."Gen. Prod. Posting Group";
+                                Description := ResourceRec.Name;
+                                "VAT Prod. Posting Group" := ResourceRec."VAT Prod. Posting Group";
+                                "Unit Of Measure Code" := ResourceRec."Base Unit of Measure";
+                                "Unit Price" := ResourceRec."Unit Price";
+                            end;
+                        end;
+                    Type::"G/L Account":
+                        begin
+                            if GlAccountRec.Get() then begin
+                                CheckGLAcc(GlAccountRec);
+                                GlAccountRec.TestField("Direct Posting", true);
+                                Description := GlAccountRec.Name;
+                                "Gen. Prod. Posting Group" := GlAccountRec."Gen. Prod. Posting Group";
+                                "VAT Prod. Posting Group" := GlAccountRec."VAT Prod. Posting Group";
+                            end;
+                        end;
+                end;
+
+            end;
 
         }
         field(6; Description; Text[50])
@@ -133,6 +166,13 @@ table 50106 "Seminar Charge"
     begin
         TestField(Registred, false);
     end;
+
+    local procedure CheckGLAcc(GLAcc: Record "G/L Account")
+    begin
+        if GLAcc."Account Type" <> GLAcc."Account Type"::Posting then
+            Error('The G/L Account must be of type "Posting".');
+    end;
+
 
 
 }
