@@ -1,12 +1,12 @@
 namespace seminarmanagementbcal.seminarmanagementbcal;
 
-page 50111 "Seminar Charges"
+page 50121 "Seminar Charges"
 {
     ApplicationArea = All;
     Caption = 'Seminar Charges';
     PageType = List;
     SourceTable = "Seminar Charge";
-    
+
     layout
     {
         area(Content)

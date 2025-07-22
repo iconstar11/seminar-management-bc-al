@@ -92,9 +92,13 @@ table 50106 "Seminar Charge"
     }
     keys
     {
-        key(PK; "Seminar Registration No", "Line No.", "Job No.")
+        key(PK; "Seminar Registration No", "Line No.")
         {
             Clustered = true;
+        }
+        key(SecondaryKey; "Job No.")
+        {
+            Clustered = false;
         }
     }
 }

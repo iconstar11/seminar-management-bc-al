@@ -40,7 +40,7 @@ table 50107 "Seminar Registration Line"
         field(7; "To Invoice"; Boolean)
         {
             Caption = 'To Invoice';
-            InitValue = Yes;
+            InitValue = true;
         }
         field(8; Participated; Boolean)
         {

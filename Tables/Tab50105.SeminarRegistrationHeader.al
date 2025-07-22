@@ -2,6 +2,7 @@ table 50105 "Seminar Registration Header"
 {
     Caption = 'Seminar Registration Header';
     DataClassification = ToBeClassified;
+    LookupPageId = 50108;
 
     fields
     {
@@ -47,6 +48,10 @@ table 50105 "Seminar Registration Header"
         field(9; "Maximum Participants"; Integer)
         {
             Caption = 'Maximum Participants';
+        }
+        field(28; "Minimum Participants"; Integer)
+        {
+            Caption = 'Minimum Participants';
         }
         field(10; "Room Code"; Code[20])
         {
@@ -134,9 +139,13 @@ table 50105 "Seminar Registration Header"
     }
     keys
     {
-        key(PK; "No.", "Room Code")
+        key(PK; "No.")
         {
             Clustered = true;
+        }
+        key(RoomKey; "Room Code")
+        {
+            SumIndexFields = Duration;
         }
     }
 }
