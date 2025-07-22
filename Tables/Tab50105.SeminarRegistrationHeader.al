@@ -9,15 +9,62 @@ table 50105 "Seminar Registration Header"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            trigger OnValidate()
+            var
+                SemSetup: Record "Seminar Setup";
+                NoSeriesMgt: Codeunit NoSeriesManagement;
+            begin
+                if "No." <> xRec."No." then begin
+                    SemSetup.Get();
+                    NoSeriesMgt.TestManual(SemSetup."Seminar Registration Nos.");
+                    "No. Series" := '';
+                end;
+            end;
         }
         field(2; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+
+            trigger OnValidate()
+            begin
+                if "Starting Date" <> xRec."Starting Date" then begin
+                    if Status <> Status::Planning then
+                        Status := Status::Planning
+                end;
+            end;
         }
         field(3; "Seminar Code"; Code[20])
         {
             Caption = 'Seminar Code';
             TableRelation = Seminar;
+
+            trigger OnValidate()
+            var
+                SeminarRec: Record Seminar;
+                SemLine: Record "Seminar Registration Line";
+            begin
+                if "Seminar Code" <> xRec."Seminar Code" then begin
+
+                    if SemLine.Get("No.") then
+                        Error('Cannot change Seminar Code when registration lines exist.'); // 
+
+                    if SeminarRec.Get("Seminar Code") then begin
+                        SeminarRec.TestField(Bloked, false);
+                        SeminarRec.TestField("Gen. Prod. Posting Group");
+                        SeminarRec.TestField("VAT Prod. Posting Group");
+
+                        "Seminar Name" := SeminarRec.Name;
+                        Duration := SeminarRec."Seminar Duration";
+                        "Seminar Price" := SeminarRec."Seminar Price";
+                        "Gen. Prod. Posting Group" := SeminarRec."Gen. Prod. Posting Group";
+                        "VAT Prod. Posting Group" := SeminarRec."VAT Prod. Posting Group";
+                        "Minimum Participants" := SeminarRec."Minimum Participarts";
+                        "Maximum Participants" := SeminarRec."Maximum Participants";
+
+                        Validate("Job No.", SeminarRec."Job No."); // triggers Job validation logic
+                    end;
+                end;
+            end;
         }
         field(4; "Seminar Name"; Text[50])
         {
@@ -27,6 +74,14 @@ table 50105 "Seminar Registration Header"
         {
             Caption = 'Instructor Code';
             TableRelation = Instructor;
+
+            trigger OnValidate()
+            var
+                Inst: Record Instructor;
+            begin
+                if Inst.Get("Instructor Code") then
+                    "Instructor Name" := Inst.Name;
+            end;
         }
         field(6; "Instructor Name"; Text[50])
         {
@@ -56,6 +111,33 @@ table 50105 "Seminar Registration Header"
         field(10; "Room Code"; Code[20])
         {
             Caption = 'Room Code';
+
+            trigger OnValidate()
+            var
+                Room: Record "Seminar Room";
+            begin
+                if "Room Code" = '' then begin
+                    "Room Name" := '';
+                    "Room Address" := '';
+                    "Room Address2" := '';
+                    "Room Post Code" := '';
+                    "Room City" := '';
+                    "Room Phone No." := '';
+                end else begin
+                    if Room.Get("Room Code") then begin
+                        "Room Name" := Room.Name;
+                        "Room Address" := Room.Address;
+                        "Room Address2" := Room."Address 2";
+                        "Room Post Code" := Room."Post Code";
+                        "Room City" := Room.City;
+                        "Room Phone No." := Room."Phone No.";
+
+                        if Room."Maximum Participants " < "Maximum Participants" then
+                            if Confirm('The room capacity (%1) is less than current Maximum Participants (%2).\Do you want to reduce the Maximum Participants to fit the room?', false, Room."Maximum Participants ", "Maximum Participants") then
+                                "Maximum Participants" := Room."Maximum Participants ";
+                    end;
+                end;
+            end;
         }
         field(11; "Room Name"; Text[30])
         {
@@ -73,6 +155,20 @@ table 50105 "Seminar Registration Header"
         field(14; "Room Post Code"; Code[20])
         {
             Caption = 'Room Post Code';
+
+            trigger OnValidate()
+            var
+                PostCode: Record "Post Code";
+            begin
+                PostCode.ValidatePostCode("Room Post Code", "Room City");
+            end;
+
+            trigger OnLookup()
+            var
+                PostCode: Record "Post Code";
+            begin
+                PostCode.LookUpPostCode("Room Post Code", "Room City");
+            end;
         }
         field(15; "Room City"; Text[30])
         {
@@ -157,9 +253,11 @@ table 50105 "Seminar Registration Header"
     local procedure InitRecord()
     begin
         if "Posting Date" = 0D then
-            "Posting Date" := WorkDate();
-        "Document Date" := WorkDate();
-        SemSetUpRec.Get();
+            "Posting Date" := WorkDate;
+        "Document Date" := WorkDate;
+        if not SemSetUpRec.Get() then
+            Error('Failed to load seminar setup record');
+
         NoSeriesMgt.SetDefaultSeries("Posting No. Series", SemSetUpRec."Posted Sem. Registration Nos.");
 
 
@@ -167,16 +265,14 @@ table 50105 "Seminar Registration Header"
 
     procedure AssistEdit(OldSemRegHeader: Record "Seminar Registration Header"): Boolean
     var
-        SemSetup: Record "Seminar Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         NewNo: Code[20];
         IsHandled: Boolean;
     begin
-        SemSetup.Get();
-        if SemSetup."Seminar Nos." = '' then
-            Error(Text000); // "You must define a Seminar Nos. series in Seminar Setup."
+        SemSetUpRec.Get();
+        if SemSetUpRec."Seminar Nos." = '' then
+            Error('Text0001'); // "You must define a Seminar Nos. series in Seminar Setup."
 
-        IsHandled := NoSeriesMgt.SelectSeries(NewNo, SemSetup."Seminar Nos.", OldSemRegHeader."No.");
+        IsHandled := NoSeriesMgt.SelectSeries(NewNo, SemSetUpRec."Seminar Nos.", OldSemRegHeader."No.");
         if not IsHandled then
             exit(false);
 
@@ -187,9 +283,44 @@ table 50105 "Seminar Registration Header"
 
     var
         SemSetUpRec: Record "Seminar SetUp";
-
-    var
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        SemLine: Record "Seminar Registration Line";
+        SemCharge: Record "Seminar Charge";
+        SemComment: Record "Seminar Comment Line";
+
+    trigger OnInsert()
+    begin
+        if "No." = '' then begin
+            if not SemSetUpRec.Get() then
+                Error('Failed to get Seminar Setup record');
+            SemSetUpRec.TestField(SemSetUpRec."Seminar Registration Nos.");
+            // NoSeriesMgt.InitSeries(SemSetUpRec."Seminar Registration Nos.", "No. Series", 0D, "No. Series");
+
+        end;
+        InitRecord();
+    end;
+
+    trigger OnDelete()
+    begin
+        if Status <> Status::Canceled then
+            Error('Status is not Canceled');
+        if SemLine.Get() then
+            Error('Cannot delete. Registered seminar lines exist.');
+        if SemCharge.Get() then
+            Error('Cannot delete. Seminar charges exist.');
+        if SemComment.FindSet() then
+            repeat
+                if SemComment."No." = "No." then
+                    SemComment.Delete();
+            until SemComment.Next() = 0;
+
+
+    end;
+
+    trigger OnRename()
+    begin
+        Error('This record cannot be renamed');
+    end;
 
 
 }
