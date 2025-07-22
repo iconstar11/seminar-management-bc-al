@@ -63,7 +63,7 @@ table 50106 "Seminar Charge"
                                 "Gen. Prod. Posting Group" := ResourceRec."Gen. Prod. Posting Group";
                                 Description := ResourceRec.Name;
                                 "VAT Prod. Posting Group" := ResourceRec."VAT Prod. Posting Group";
-                                "Unit Of Measure Code" := ResourceRec."Base Unit of Measure";
+                                "Unit Of Measure Code" := ResourceRec."Unit of Measure Filter";
                                 "Unit Price" := ResourceRec."Unit Price";
                             end;
                         end;
@@ -90,12 +90,22 @@ table 50106 "Seminar Charge"
         {
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            begin
+                "Total Price" := Quantity * "Unit Price"
+            end;
         }
         field(8; "Unit Price"; Decimal)
         {
             Caption = 'Unit Price';
             AutoFormatType = 2;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                "Total Price" := Quantity * "Unit Price"
+            end;
         }
         field(9; "Total Price"; Decimal)
         {
@@ -119,6 +129,30 @@ table 50106 "Seminar Charge"
             TableRelation = if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."))
             else
             "Unit of Measure";
+
+            trigger OnValidate()
+            begin
+                case Type of
+                    Type::Resource:
+
+                        begin
+                            ResourceRec.Get();
+                            if "Unit Of Measure Code" = '' then
+                                "Unit Of Measure Code" := ResourceRec."Base Unit of Measure";
+                            "Qty. Per Unit of Measure" := ResourceRec."Qty. on Assembly Order";
+                            "Unit Price" := ResourceRec."Unit Price";
+
+
+
+                        end;
+
+
+                    Type::"G/L Account":
+                        begin
+
+                        end;
+                end;
+            end;
         }
         field(13; "Gen. Prod. Posting Group"; Code[10])
         {
@@ -154,6 +188,8 @@ table 50106 "Seminar Charge"
 
     var
         SeminarRegHeaderRec: Record "Seminar Registration Header";
+        ResourceRec: Record Resource;
+        GlAccountRec: Record "G/L Account";
 
     trigger OnInsert()
     begin
