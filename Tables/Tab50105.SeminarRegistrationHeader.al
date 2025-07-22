@@ -30,15 +30,19 @@ table 50105 "Seminar Registration Header"
         field(6; "Instructor Name"; Text[50])
         {
             Caption = 'Instructor Name';
+            Editable = false; // This field is not editable
+            FieldClass = FlowField;
+            CalcFormula = lookup(Instructor.Name where(Code = field("Instructor Code")));
         }
         field(7; Status; Option)
         {
             Caption = 'Status';
-            OptionMembers = ,Planning,Registartion,Closed,Canceled;
+            OptionMembers = Planning,Registration,Closed,Canceled;
         }
         field(8; "Duration"; Decimal)
         {
             Caption = 'Duration';
+            DecimalPlaces = 0 : 1;
         }
         field(9; "Maximum Participants"; Integer)
         {
@@ -69,6 +73,7 @@ table 50105 "Seminar Registration Header"
         {
             Caption = 'Room City';
             TableRelation = "Post Code";
+            ValidateTableRelation = false; // This field does not validate against the Post Code table
         }
         field(16; "Room Phone No."; Text[30])
         {
