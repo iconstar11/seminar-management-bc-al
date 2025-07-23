@@ -29,7 +29,7 @@ table 50107 "Seminar Registration Line"
         field(4; "Participant Contact No."; Code[20])
         {
             Caption = 'Participant Contact No.';
-            TableRelation = Contact;
+            // TableRelation = Contact;
 
             trigger OnLookup()
             var
@@ -81,6 +81,11 @@ table 50107 "Seminar Registration Line"
         {
             Caption = 'Seminar Price';
             AutoFormatType = 2;
+
+            trigger OnValidate()
+            begin
+                Validate("Line Discount %");
+            end;
         }
         field(11; "Line Discount %"; Decimal)
         {
@@ -88,16 +93,49 @@ table 50107 "Seminar Registration Line"
             DecimalPlaces = 0 : 5;
             MinValue = 0;
             MaxValue = 100;
+
+            trigger OnValidate()
+            begin
+                GLSetup.Get();
+                "Line Discount Amount" := Round("Seminar Price" * "Line Discount %" / 100, GLSetup."Amount Rounding Precision");
+                UpdateAmount();
+            end;
         }
         field(12; "Line Discount Amount"; Decimal)
         {
             Caption = 'Line Discount Amount';
             AutoFormatType = 1;
+
+            trigger OnValidate()
+            begin
+                if "Seminar Price" <> 0 then
+                    "Line Discount %" := Round("Line Discount Amount" / "Seminar Price" * 100, 0.00001)
+                else
+                    "Line Discount %" := 0;
+
+                UpdateAmount();
+            end;
         }
         field(13; Amount; Decimal)
         {
             Caption = 'Amount';
             AutoFormatType = 1;
+
+            trigger OnValidate()
+            begin
+                TestField("Bill-to Customer No.");
+                TestField("Seminar Price");
+
+                GLSetup.Get();
+                Amount := Round(Amount, GLSetup."Amount Rounding Precision");
+
+                "Line Discount Amount" := "Seminar Price" - Amount;
+
+                if "Seminar Price" <> 0 then
+                    "Line Discount %" := Round("Line Discount Amount" / "Seminar Price" * 100, 0.00001)
+                else
+                    "Line Discount %" := 0;
+            end;
         }
         field(14; Registered; Boolean)
         {
@@ -115,6 +153,8 @@ table 50107 "Seminar Registration Line"
 
     var
         SemHeader: Record "Seminar Registration Header";
+        GLSetup: Record "General Ledger Setup";
+
 
     procedure GetSemRegHeader()
     begin
@@ -126,6 +166,13 @@ table 50107 "Seminar Registration Line"
     begin
         Amount := Round("Seminar Price" * ((100 - "Line Discount %") / 100), 0.01);
     end;
+
+    procedure UpdateAmount()
+    begin
+        GLSetup.Get();
+        Amount := Round("Seminar Price" - "Line Discount Amount", GLSetup."Amount Rounding Precision");
+    end;
+
 
     trigger OnInsert()
     begin
