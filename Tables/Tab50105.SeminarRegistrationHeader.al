@@ -160,15 +160,18 @@ table 50105 "Seminar Registration Header"
             var
                 PostCode: Record "Post Code";
             begin
-                PostCode.ValidatePostCode("Room Post Code", "Room City");
+                // PostCode.Validate("Post Code", "Room Post Code");
+                PostCode.Validate("City", "Room City");
             end;
 
-            trigger OnLookup()
-            var
-                PostCode: Record "Post Code";
-            begin
-                PostCode.LookUpPostCode("Room Post Code", "Room City");
-            end;
+            // trigger OnLookup()
+            // var
+            //     PostCode: Record "Post Code";
+            // begin
+            //     PostCode.LookUpPost("Room Post Code", "Room City");
+            // end;
+
+
         }
         field(15; "Room City"; Text[30])
         {
@@ -183,6 +186,21 @@ table 50105 "Seminar Registration Header"
         field(17; "Seminar Price"; Decimal)
         {
             Caption = 'Seminar Price';
+            trigger OnValidate()
+            begin
+                if ("Seminar Price" <> xRec."Seminar Price") and (Status <> Status::Canceled) then begin
+                    SemLine.SetRange("Document No.", "No.");
+                    SemLine.SetRange(Registered, false);
+
+                    if SemLine.FindFirst() then
+                        if Confirm(Text009) then begin
+                            repeat
+                                SemLine.Validate("Seminar Price", "Seminar Price");
+                                SemLine.Modify();
+                            until SemLine.Next() = 0;
+                        end;
+                end;
+            end;
         }
         field(18; "Gen. Prod. Posting Group"; Code[10])
         {
@@ -216,6 +234,24 @@ table 50105 "Seminar Registration Header"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+
+            trigger OnValidate()
+            var
+                OldJobNo: Code[20];
+            begin
+                if "Job No." <> xRec."Job No." then begin
+                    OldJobNo := xRec."Job No.";
+
+                    SemCharge.SetRange("Seminar Registration No", "No.");
+                    SemCharge.SetRange("Job No.", OldJobNo);
+
+                    if SemCharge.FindFirst() then
+                        if Confirm(Text010, false, OldJobNo, "Job No.") then
+                            SemCharge.ModifyAll("Job No.", "Job No.")
+                        else
+                            "Job No." := OldJobNo;
+                end;
+            end;
         }
         field(25; "No. Series"; Code[10])
         {
@@ -227,6 +263,37 @@ table 50105 "Seminar Registration Header"
         {
             Caption = 'Posting No. Series';
             TableRelation = "No. Series";
+
+            trigger OnValidate()
+            begin
+                if "Posting No. Series" <> '' then begin
+                    SemSetUpRec.Get();
+                    SemSetUpRec.TestField("Seminar Registration Nos.");
+                    SemSetUpRec.TestField("Posted Sem. Registration Nos.");
+
+                    NoSeriesMgt.TestSeries(SemSetUpRec."Posted Sem. Registration Nos.", "Posting No. Series");
+                end;
+
+                TestField("Posting No.", '');
+            end;
+
+            trigger OnLookup()
+            var
+                SemSetup: Record "Seminar Setup";
+                NoSeriesMgt: Codeunit NoSeriesManagement;
+                TempRec: Record "Seminar Registration Header";
+            begin
+                TempRec := Rec;
+
+                SemSetup.Get();
+                SemSetup.TestField("Seminar Registration Nos.");
+                SemSetup.TestField("Posted Sem. Registration Nos.");
+
+                if NoSeriesMgt.LookupSeries(SemSetup."Posted Sem. Registration Nos.", TempRec."Posting No. Series") then
+                    Validate("Posting No. Series", TempRec."Posting No. Series");
+
+                Rec := TempRec;
+            end;
         }
         field(27; "Posting No."; Code[20])
         {
