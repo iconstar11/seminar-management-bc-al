@@ -93,7 +93,7 @@ table 50106 "Seminar Charge"
 
             trigger OnValidate()
             begin
-                "Total Price" := Quantity * "Unit Price"
+                CalcTotal();
             end;
         }
         field(8; "Unit Price"; Decimal)
@@ -104,7 +104,7 @@ table 50106 "Seminar Charge"
 
             trigger OnValidate()
             begin
-                "Total Price" := Quantity * "Unit Price"
+                CalcTotal();
             end;
         }
         field(9; "Total Price"; Decimal)
@@ -141,14 +141,13 @@ table 50106 "Seminar Charge"
                                 "Unit Of Measure Code" := ResourceRec."Base Unit of Measure";
                             "Qty. Per Unit of Measure" := ResourceRec."Qty. on Assembly Order";
                             "Unit Price" := ResourceRec."Unit Price";
-
-
-
                         end;
 
 
                     Type::"G/L Account":
                         begin
+                            "Qty. Per Unit of Measure" := 1;
+
 
                         end;
                 end;
@@ -207,6 +206,11 @@ table 50106 "Seminar Charge"
     begin
         if GLAcc."Account Type" <> GLAcc."Account Type"::Posting then
             Error('The G/L Account must be of type "Posting".');
+    end;
+
+    local procedure CalcTotal()
+    begin
+        "Total Price" := Round("Unit Price" * Quantity, 0.01);
     end;
 
 

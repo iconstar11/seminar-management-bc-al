@@ -193,7 +193,7 @@ table 50105 "Seminar Registration Header"
                     SemLine.SetRange(Registered, false);
 
                     if SemLine.FindFirst() then
-                        if Confirm(Text009) then begin
+                        if Confirm('Unregistered lines exist. Do you want to update Seminar Price for them?') then begin
                             repeat
                                 SemLine.Validate("Seminar Price", "Seminar Price");
                                 SemLine.Modify();
@@ -246,7 +246,7 @@ table 50105 "Seminar Registration Header"
                     SemCharge.SetRange("Job No.", OldJobNo);
 
                     if SemCharge.FindFirst() then
-                        if Confirm(Text010, false, OldJobNo, "Job No.") then
+                        if Confirm('Charges exist with Job No. %1. Do you want to update them to %2?', false, OldJobNo, "Job No.") then
                             SemCharge.ModifyAll("Job No.", "Job No.")
                         else
                             "Job No." := OldJobNo;
@@ -279,17 +279,15 @@ table 50105 "Seminar Registration Header"
 
             trigger OnLookup()
             var
-                SemSetup: Record "Seminar Setup";
-                NoSeriesMgt: Codeunit NoSeriesManagement;
                 TempRec: Record "Seminar Registration Header";
             begin
                 TempRec := Rec;
 
-                SemSetup.Get();
-                SemSetup.TestField("Seminar Registration Nos.");
-                SemSetup.TestField("Posted Sem. Registration Nos.");
+                SemSetUpRec.Get();
+                SemSetUpRec.TestField("Seminar Registration Nos.");
+                SemSetUpRec.TestField("Posted Sem. Registration Nos.");
 
-                if NoSeriesMgt.LookupSeries(SemSetup."Posted Sem. Registration Nos.", TempRec."Posting No. Series") then
+                if NoSeriesMgt.LookupSeries(SemSetUpRec."Posted Sem. Registration Nos.", TempRec."Posting No. Series") then
                     Validate("Posting No. Series", TempRec."Posting No. Series");
 
                 Rec := TempRec;
@@ -361,11 +359,18 @@ table 50105 "Seminar Registration Header"
             if not SemSetUpRec.Get() then
                 Error('Failed to get Seminar Setup record');
             SemSetUpRec.TestField(SemSetUpRec."Seminar Registration Nos.");
-            // NoSeriesMgt.InitSeries(SemSetUpRec."Seminar Registration Nos.", "No. Series", 0D, "No. Series");
 
+            NoSeriesMgt.InitSeries(
+                SemSetUpRec."Seminar Registration Nos.",
+                xRec."No. Series",
+                0D,
+                "No.",
+                "No. Series");
         end;
+
         InitRecord();
     end;
+
 
     trigger OnDelete()
     begin
