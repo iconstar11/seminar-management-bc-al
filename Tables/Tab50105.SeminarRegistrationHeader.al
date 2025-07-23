@@ -50,8 +50,8 @@ table 50105 "Seminar Registration Header"
 
                     if SeminarRec.Get("Seminar Code") then begin
                         SeminarRec.TestField(Bloked, false);
-                        SeminarRec.TestField("Gen. Prod. Posting Group");
-                        SeminarRec.TestField("VAT Prod. Posting Group");
+                        // SeminarRec.TestField("Gen. Prod. Posting Group");
+                        // SeminarRec.TestField("VAT Prod. Posting Group");
 
                         "Seminar Name" := SeminarRec.Name;
                         Duration := SeminarRec."Seminar Duration";
@@ -320,7 +320,7 @@ table 50105 "Seminar Registration Header"
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate;
         "Document Date" := WorkDate;
-        if not SemSetUpRec.Get() then
+        if not SemSetUpRec.FindFirst() then
             Error('Failed to load seminar setup record');
 
         NoSeriesMgt.SetDefaultSeries("Posting No. Series", SemSetUpRec."Posted Sem. Registration Nos.");
@@ -354,9 +354,10 @@ table 50105 "Seminar Registration Header"
         SemComment: Record "Seminar Comment Line";
 
     trigger OnInsert()
+
     begin
         if "No." = '' then begin
-            if not SemSetUpRec.Get() then
+            if not SemSetUpRec.FindFirst() then
                 Error('Failed to get Seminar Setup record');
             SemSetUpRec.TestField(SemSetUpRec."Seminar Registration Nos.");
 

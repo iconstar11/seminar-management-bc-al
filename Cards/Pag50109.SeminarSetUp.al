@@ -3,6 +3,7 @@ namespace seminarmanagementbcal.seminarmanagementbcal;
 page 50109 "Seminar SetUp"
 {
     ApplicationArea = All;
+    UsageCategory = Administration;
     Caption = 'Seminar SetUp';
     PageType = Card;
     SourceTable = "Seminar SetUp";

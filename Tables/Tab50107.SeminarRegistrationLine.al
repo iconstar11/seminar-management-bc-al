@@ -29,26 +29,29 @@ table 50107 "Seminar Registration Line"
         field(4; "Participant Contact No."; Code[20])
         {
             Caption = 'Participant Contact No.';
-            // TableRelation = Contact;
+            TableRelation = Contact;
+
 
             trigger OnLookup()
             var
-                Cont: Record Contact;
-                ContBusinessRelation: Record "Contact Business Relation";
-                ContactPageID: Integer;
+                Contact: Record Contact;
             begin
-                ContBusinessRelation.Reset();
-                ContBusinessRelation.SetRange("Link to Table", ContBusinessRelation."Link to Table"::Customer);
-                ContBusinessRelation.SetRange("No.", "Bill-to Customer No.");
+                if "Bill-to Customer No." = '' then
+                    Error('Please select a Bill-to Customer before choosing a contact.');
 
-                if ContBusinessRelation.FindFirst() then begin
-                    Cont.SetRange("Company No.", ContBusinessRelation."Contact No.");
-                    if Page.RunModal(Page::"Contact List", Cont) = Action::LookupOK then
-                        "Participant Contact No." := Cont."No.";
+                // Filter all contacts that belong to the selected customer as Company
+                Contact.Reset();
+                Contact.SetRange("Company No.", "Bill-to Customer No.");
+
+                if Page.RunModal(Page::"Contact List", Contact) = Action::LookupOK then begin
+                    "Participant Contact No." := Contact."No.";
+                    "Participant Name" := Contact.Name;
                 end;
 
-                CalcFields("Participant Name"); // refresh the FlowField
+                CalcFields("Participant Name");
             end;
+
+
         }
         field(5; "Participant Name"; Text[100])
         {

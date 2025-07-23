@@ -19,13 +19,13 @@ page 50122 "Seminar Registration Card"
                 field("No."; Rec."No.")
                 {
                     ToolTip = 'Specifies the value of the No. field.', Comment = '%';
-                    // trigger OnAssistEdit()
-                    // var
-                    //     TempRec: Record "Seminar Registration Header";
-                    // begin
-                    //     if AssistEdit(xRec) then
-                    //         CurrPage.Update();
-                    // end;
+                    trigger OnAssistEdit()
+                    var
+                        TempRec: Record "Seminar Registration Header";
+                    begin
+                        if Rec.AssistEdit(xRec) then
+                            CurrPage.Update();
+                    end;
                 }
                 field("Starting Date"; Rec."Starting Date")
                 {
