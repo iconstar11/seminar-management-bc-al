@@ -18,11 +18,37 @@ table 50107 "Seminar Registration Line"
         {
             Caption = 'Bill-to Customer No.';
             TableRelation = Customer;
+
+            trigger OnValidate()
+            begin
+                if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
+                    if Registered then
+                        Error('Cannot change customer on a registered line.');
+            end;
         }
         field(4; "Participant Contact No."; Code[20])
         {
             Caption = 'Participant Contact No.';
             TableRelation = Contact;
+
+            trigger OnLookup()
+            var
+                Cont: Record Contact;
+                ContBusinessRelation: Record "Contact Business Relation";
+                ContactPageID: Integer;
+            begin
+                ContBusinessRelation.Reset();
+                ContBusinessRelation.SetRange("Link to Table", ContBusinessRelation."Link to Table"::Customer);
+                ContBusinessRelation.SetRange("No.", "Bill-to Customer No.");
+
+                if ContBusinessRelation.FindFirst() then begin
+                    Cont.SetRange("Company No.", ContBusinessRelation."Contact No.");
+                    if Page.RunModal(Page::"Contact List", Cont) = Action::LookupOK then
+                        "Participant Contact No." := Cont."No.";
+                end;
+
+                CalcFields("Participant Name"); // refresh the FlowField
+            end;
         }
         field(5; "Participant Name"; Text[100])
         {
@@ -86,4 +112,34 @@ table 50107 "Seminar Registration Line"
             Clustered = true;
         }
     }
+
+    var
+        SemHeader: Record "Seminar Registration Header";
+
+    procedure GetSemRegHeader()
+    begin
+        if not SemHeader.Get("Document No.") then
+            Error('Seminar Registration Header not found for Document No. %1', "Document No.");
+    end;
+
+    local procedure CalcAmount()
+    begin
+        Amount := Round("Seminar Price" * ((100 - "Line Discount %") / 100), 0.01);
+    end;
+
+    trigger OnInsert()
+    begin
+        GetSemRegHeader();
+
+        "Register Date" := WorkDate;
+        "Seminar Price" := SemHeader."Seminar Price";
+        CalcAmount();
+    end;
+
+    trigger OnDelete()
+    begin
+        TestField(Registered, false);
+    end;
+
+
 }
