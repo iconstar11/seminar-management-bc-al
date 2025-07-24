@@ -5,6 +5,7 @@ using System.EMail;
 page 50149 "Seminar Room card"
 {
     ApplicationArea = All;
+    UsageCategory = Administration;
     Caption = 'Seminar Room card';
     PageType = Card;
     SourceTable = "Seminar Room";
