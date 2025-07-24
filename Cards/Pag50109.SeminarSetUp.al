@@ -28,6 +28,10 @@ page 50109 "Seminar SetUp"
                 {
                     ToolTip = 'Specifies the value of the Posted Sem. Registration Nos. field.', Comment = '%';
                 }
+                field(Seminar; Rec.Seminar)
+                {
+                    ToolTip = 'Specifies the value of the Seminar field.', Comment = '%';
+                }
             }
         }
     }

@@ -24,6 +24,11 @@ table 50103 "Seminar SetUp"
             Caption = 'Posted Sem. Registration Nos.';
             TableRelation = "No. Series";
         }
+        field(5; Seminar; Code[10])
+        {
+            Caption = 'Seminar';
+            TableRelation = "Source Code Setup";
+        }
     }
     keys
     {
