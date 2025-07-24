@@ -2,7 +2,7 @@ table 50109 "Seminar Journal Line"
 {
     Caption = 'Seminar Journal Line';
     DataClassification = ToBeClassified;
-    
+
     fields
     {
         field(1; "Journal Template Name"; Code[10])
@@ -16,6 +16,7 @@ table 50109 "Seminar Journal Line"
         field(3; "Seminar No."; Code[20])
         {
             Caption = 'Seminar No.';
+            TableRelation = Seminar;
         }
         field(4; "Posting Date"; Date)
         {
@@ -28,6 +29,7 @@ table 50109 "Seminar Journal Line"
         field(6; "Entry Type"; Option)
         {
             Caption = 'Entry Type';
+            OptionMembers = Registration,Cancellation;
         }
         field(7; "Document No."; Code[20])
         {
@@ -40,30 +42,37 @@ table 50109 "Seminar Journal Line"
         field(9; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
+            TableRelation = Customer;
         }
         field(10; "Charge Type"; Option)
         {
             Caption = 'Charge Type';
+            OptionMembers = Instructor,Room,Participant,Charge;
         }
         field(11; "Type"; Option)
         {
             Caption = 'Type';
+            OptionMembers = Resource,"G/L Account";
         }
         field(12; Quantity; Decimal)
         {
             Caption = 'Quantity';
+            DecimalPlaces = 0 : 5;
         }
         field(13; "Unit Price"; Decimal)
         {
             Caption = 'Unit Price';
+            AutoFormatType = 2;
         }
         field(14; "Total Price"; Decimal)
         {
             Caption = 'Total Price';
+            AutoFormatType = 1;
         }
         field(15; "Participant Contact No."; Code[20])
         {
             Caption = 'Participant Contact No.';
+            TableRelation = Contact;
         }
         field(16; "Participant Name"; Text[50])
         {
@@ -72,10 +81,12 @@ table 50109 "Seminar Journal Line"
         field(17; Chargeable; Boolean)
         {
             Caption = 'Chargeable';
+            InitValue = true;
         }
         field(18; "Room Code"; Code[10])
         {
             Caption = 'Room Code';
+            TableRelation = "Seminar Room";
         }
         field(19; "Instructor Code"; Code[10])
         {
@@ -100,6 +111,7 @@ table 50109 "Seminar Journal Line"
         field(24; "Source Type"; Option)
         {
             Caption = 'Source Type';
+            OptionMembers = ,Seminar;
         }
         field(25; "Sorce No."; Code[20])
         {
@@ -124,9 +136,14 @@ table 50109 "Seminar Journal Line"
     }
     keys
     {
-        key(PK; "Journal Template Name","Line No.","Journal batch No.")
+        key(PK; "Journal Template Name", "Line No.", "Journal batch No.")
         {
             Clustered = true;
         }
     }
+
+    local procedure EmptyLine(): Boolean
+    begin
+        exit("Seminar No." = '')
+    end;
 }
