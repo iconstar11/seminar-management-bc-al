@@ -117,9 +117,9 @@ table 50109 "Seminar Journal Line"
         {
             Caption = 'Sorce No.';
         }
-        field(26; "Journal batch No."; Code[10])
+        field(26; "Journal batch Name"; Code[10])
         {
-            Caption = 'Journal batch No.';
+            Caption = 'Journal batch Name';
         }
         field(27; "Source Code"; Code[10])
         {
@@ -136,7 +136,7 @@ table 50109 "Seminar Journal Line"
     }
     keys
     {
-        key(PK; "Journal Template Name", "Line No.", "Journal batch No.")
+        key(PK; "Journal Template Name", "Line No.", "Journal batch Name")
         {
             Clustered = true;
         }
