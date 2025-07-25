@@ -8,7 +8,7 @@ table 50148 "Seminar Room"
         field(1; Code; Code[10])
         {
             Caption = 'Code';
-            NotBlank = true;
+            // NotBlank = true;
             DataClassification = ToBeClassified;
         }
         field(2; Name; Text[30])

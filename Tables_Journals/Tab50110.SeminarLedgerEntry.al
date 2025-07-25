@@ -169,5 +169,13 @@ table 50110 "Seminar Ledger Entry"
         {
             Clustered = true;
         }
+        key("First SK"; "Seminar No.", "Posting Date")
+        {
+            Clustered = false;
+        }
+        key("Second SK"; "Bill-to Customer No.", "Seminar Registration No.", "Charge Type", "Participant Contact No.")
+        {
+            Clustered = false;
+        }
     }
 }
