@@ -1,4 +1,4 @@
-table 50112 "Posted Seminar Charge"
+table 50122 "Posted Seminar Charge"
 {
     Caption = 'Posted Seminar Charge';
     DataClassification = ToBeClassified;

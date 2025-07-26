@@ -133,6 +133,10 @@ table 50109 "Seminar Journal Line"
         {
             Caption = 'Posting No. Series';
         }
+        // field(30; "Seminar Registration No."; Integer)
+        // {
+        //     Caption = 'Seminar Registration No.';
+        // }
     }
     keys
     {

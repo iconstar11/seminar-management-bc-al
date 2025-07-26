@@ -1,6 +1,6 @@
 namespace seminarmanagementbcal.seminarmanagementbcal;
 
-page 50113 "Posted Seminar Charges List"
+page 50123 "Posted Seminar Charges List"
 {
     ApplicationArea = All;
     UsageCategory = Lists;

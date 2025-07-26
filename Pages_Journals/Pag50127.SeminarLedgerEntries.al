@@ -1,6 +1,6 @@
 namespace seminarmanagementbcal.seminarmanagementbcal;
 
-page 50111 "Seminar Ledger Entries"
+page 50127 "Seminar Ledger Entries"
 {
     ApplicationArea = All;
     Caption = 'Seminar Ledger Entries';

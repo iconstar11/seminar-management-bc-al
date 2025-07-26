@@ -1,4 +1,4 @@
-table 50111 "Seminar Register"
+table 50121 "Seminar Register"
 {
     Caption = 'Seminar Register';
     DataClassification = ToBeClassified;

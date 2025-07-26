@@ -1,6 +1,6 @@
 namespace seminarmanagementbcal.seminarmanagementbcal;
 
-page 50112 "Seminar Registers"
+page 50126 "Seminar Registers"
 {
     ApplicationArea = All;
     UsageCategory = Lists;
