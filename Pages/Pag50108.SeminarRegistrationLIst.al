@@ -1,4 +1,5 @@
 namespace ALProject.ALProject;
+using seminarmanagementbcal.seminarmanagementbcal;
 
 page 50108 "Seminar Registration LIst"
 {
@@ -46,6 +47,21 @@ page 50108 "Seminar Registration LIst"
                 {
                     ToolTip = 'Specifies the value of the Room Code field.', Comment = '%';
                 }
+            }
+        }
+    }
+    actions
+    {
+        area(Processing)
+        {
+            action(PostSeminar)
+            {
+                Caption = 'Post...';
+                ShortcutKey = 'F11';
+                RunObject = Codeunit "Seminar-Post";
+                Ellipsis = true;
+                Promoted = true;
+                PromotedCategory = Process;
             }
         }
     }
