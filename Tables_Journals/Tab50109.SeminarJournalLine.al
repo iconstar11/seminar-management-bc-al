@@ -140,7 +140,7 @@ table 50109 "Seminar Journal Line"
     }
     keys
     {
-        key(PK; "Journal Template Name", "Line No.", "Journal batch Name")
+        key(PK; "Journal Template Name", "Journal batch Name", "Line No.")
         {
             Clustered = true;
         }

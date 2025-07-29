@@ -111,4 +111,19 @@ page 50125 "Posted Seminar Reg.Card"
             }
         }
     }
+    actions
+    {
+        area(Processing)
+        {
+            action(Navigate)
+            {
+                Caption = 'Navigate';
+                ShortcutKey = 'F11';
+                Image = Navigate;
+                Promoted = true;
+                PromotedCategory = Process;
+            }
+        }
+    }
+
 }

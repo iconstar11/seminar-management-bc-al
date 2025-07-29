@@ -12,10 +12,7 @@ codeunit 50103 "Posted Seminar Reg.List"
 {
     TableNo = "Seminar Registration Header";
 
-    // trigger OnRun()
-    // begin
 
-    // end;
     trigger OnRun()
     begin
         // Clear variables
@@ -26,7 +23,7 @@ codeunit 50103 "Posted Seminar Reg.List"
         SemRegHeader.TestField("Posting Date");
         SemRegHeader.TestField("Document Date");
         SemRegHeader.TestField("Starting Date");
-        SemRegHeader.TestField("Seminar No.");
+        SemRegHeader.TestField("Seminar Code");
         SemRegHeader.TestField(Duration);
         SemRegHeader.TestField("Instructor Code");
         SemRegHeader.TestField("Room Code");
@@ -37,7 +34,7 @@ codeunit 50103 "Posted Seminar Reg.List"
         SemRoom.Get(SemRegHeader."Room Code");
         SemRoom.TestField("Resource No.");
         Instr.Get(SemRegHeader."Instructor Code");
-        Instr.TestField("Resource No.");
+        Instr.TestField("Resource No. ");
 
         // Check if lines exist
         SemRegLine.Reset();
@@ -66,11 +63,11 @@ codeunit 50103 "Posted Seminar Reg.List"
             SemRegLine.LockTable();
         SemLedgEntry.LockTable();
         SemLedgEntry.FindLast();
-        SemLedgEntryNo := SemLedgEntry."Entry No." + 1;
+        SemLedgEntryNo := SemLedgEntry."Entry Type" + 1;
 
         // Get source code
         SourceCodeSetup.Get();
-        SrcCode := SourceCodeSetup.Seminar;
+        SrcCode := 'SEMINAR'; // Use a constant or replace with a valid field from SourceCodeSetup if available
 
         // Create Posted Header
         PstdSemRegHeader.Init();
@@ -154,12 +151,7 @@ codeunit 50103 "Posted Seminar Reg.List"
 
 
 
-    local procedure CopyCommentLines()
-    var
-        FromDocumentType: Integer;
-        ToDocumentType: Integer;
-        FromNumber: Code[20];
-        ToNumber: Code[20];
+    local procedure CopyCommentLines(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
     begin
         SemCommentLine.Reset();
         SemCommentLine.SetRange("Document Type", FromDocumentType);
@@ -211,81 +203,6 @@ codeunit 50103 "Posted Seminar Reg.List"
             until SemCharge.Next() = 0;
 
     end;
-
-
-
-    // local procedure PostedJobJnlLine(ChargeType: Option "Participant","Charge"): Integer
-    // begin
-    //     // Get Customer, Instructor, Resource
-    //     Cust.Get(PstdSemRegHeader."Bill-to Customer No.");
-    //     Instr.Get(PstdSemRegHeader."Instructor Code");
-    //     Res.Get(Instr."Resource No. ");
-
-    //     // Prepare Job Journal Line
-    //     JobJnlLine.Init();
-    //     JobJnlLine."Journal Template Name" := 'DEFAULT';
-    //     JobJnlLine."Journal Batch Name" := PstdSemRegHeader."Journal Batch Name";
-    //     JobJnlLine."Line No." := 10000;
-    //     JobJnlLine."Entry Type" := JobJnlLine."Entry Type"::Usage;
-    //     JobJnlLine."Posting Date" := PstdSemRegHeader."Posting Date";
-    //     JobJnlLine."Document No." := PstdSemRegHeader."No.";
-    //     JobJnlLine."Seminar Registration No." := PstdSemRegHeader."No.";
-    //     JobJnlLine."Job No." := PstdSemRegHeader."Job No.";
-    //     JobJnlLine."Source Code" := SrcCode;
-    //     JobJnlLine."Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
-
-    //     case ChargeType of
-    //         ChargeType::Participant:
-    //             begin
-    //                 JobJnlLine.Description := SemRegLine."Participant Name";
-    //                 JobJnlLine."No." := Res."No."; // Instructor Resource No.
-    //                 JobJnlLine."Chargeable" := SemRegLine."To Invoice";
-    //                 JobJnlLine.Quantity := 1;
-    //                 JobJnlLine."Quantity (Base)" := 1;
-    //                 JobJnlLine."Unit Cost" := 0;
-    //                 JobJnlLine."Total Cost" := 0;
-    //                 JobJnlLine."Unit Price" := SemRegLine."Amount";
-    //                 JobJnlLine."Total Price" := SemRegLine."Amount";
-    //             end;
-
-    //         ChargeType::Charge:
-    //             begin
-    //                 JobJnlLine.Description := SemCharge.Description;
-    //                 JobJnlLine."Chargeable" := SemCharge."To Invoice";
-    //                 JobJnlLine.Quantity := SemCharge.Quantity;
-    //                 JobJnlLine."Quantity (Base)" := 1;
-
-    //                 JobJnlLine."Unit Cost" := 0;
-    //                 JobJnlLine."Total Cost" := 0;
-    //                 JobJnlLine."Unit Price" := SemCharge."Unit Price";
-    //                 JobJnlLine."Total Price" := SemCharge."Total Price";
-
-    //                 case SemCharge.Type of
-    //                     SemCharge.Type::Resource:
-    //                         begin
-    //                             JobJnlLine.Type := JobJnlLine.Type::Resource;
-    //                             JobJnlLine."No." := SemCharge."No.";
-    //                             JobJnlLine."Unit of Measure Code" := SemCharge."Unit Of Measure Code";
-    //                             JobJnlLine."Qty. per Unit of Measure" := SemCharge."Qty. Per Unit of Measure";
-    //                         end;
-    //                     SemCharge.Type::"G/L Account":
-    //                         begin
-    //                             JobJnlLine.Type := JobJnlLine.Type::"G/L Account";
-    //                             JobJnlLine."No." := SemCharge."No.";
-    //                         end;
-    //                 end;
-    //             end;
-    //     end;
-
-    //     // Post the Job Journal Line
-    //     JobJnlPostLine.RunWithCheck(JobJnlLine);
-
-    //     // Return last Job Ledger Entry No.
-    //     if JobLedgEntry.FindLast() then
-    //         exit(JobLedgEntry."Entry No.")
-    //     else
-    //         exit(0);
-    // end;
 
 
     local procedure PostJobJnlLine(ChargeType: Option "Participant","Charge"): Integer
@@ -370,10 +287,11 @@ codeunit 50103 "Posted Seminar Reg.List"
         exit(0);
     end;
 
-    local procedure PostSeminarJnlLine(ChargeType: Option "Participant","Charge")
+    local procedure PostSeminarJnlLine(ChargeType: Option "Participant","Charge"): Integer
     begin
         // Implement posting logic for Seminar Journal Line here if needed
         // For now, this is a stub to resolve the missing procedure error
+        exit(0);
     end;
 
     local procedure PostCharge()

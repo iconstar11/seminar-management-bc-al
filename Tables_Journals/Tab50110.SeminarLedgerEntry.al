@@ -177,5 +177,9 @@ table 50110 "Seminar Ledger Entry"
         {
             Clustered = false;
         }
+        key("Third SK"; "Document No.", "Posting Date")
+        {
+            Clustered = false;
+        }
     }
 }

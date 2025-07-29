@@ -105,4 +105,18 @@ page 50127 "Seminar Ledger Entries"
             }
         }
     }
+    actions
+    {
+        area(Processing)
+        {
+            action(Navigate)
+            {
+                Caption = 'Navigate';
+                ShortcutKey = 'F11';
+                Image = Navigate;
+                Promoted = true;
+                PromotedCategory = Process;
+            }
+        }
+    }
 }

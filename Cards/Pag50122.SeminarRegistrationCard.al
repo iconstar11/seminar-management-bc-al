@@ -153,7 +153,17 @@ page 50122 "Seminar Registration Card"
                     ApplicationArea = All;
                     RunPageMode = Edit;
                 }
+                action(PostSeminar)
+                {
+                    Caption = 'Post...';
+                    ShortcutKey = 'F11';
+                    RunObject = Codeunit "Seminar-Post";
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    // Add your posting logic here or reference an existing codeunit if available
+                }
             }
         }
     }
+
 }
