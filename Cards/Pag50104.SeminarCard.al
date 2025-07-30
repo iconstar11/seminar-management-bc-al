@@ -1,5 +1,6 @@
 namespace ALProject.ALProject;
 using Microsoft.Foundation.ExtendedText;
+using seminarmanagementbcal.seminarmanagementbcal;
 
 page 50104 "Seminar Card"
 {
@@ -114,6 +115,20 @@ page 50104 "Seminar Card"
                     Caption = 'Extended Texts';
                     RunObject = Page "Extended Text";
                     RunPageLink = "No." = FIELD("No.");
+                }
+                action(SeminarEntries)
+                {
+                    Caption = 'Seminar Entries';
+                    RunObject = page "Seminar Ledger Entries";
+                    RunPageLink = "Seminar No." = field("No.");
+                    RunPageView = sorting("Seminar No.", "Posting Date");
+
+                }
+                action(Registrations)
+                {
+                    Caption = 'Registrations';
+                    RunObject = page "Seminar Registration LIst";
+                    RunPageLink = "Seminar Code" = field("No.");
                 }
 
             }

@@ -50,6 +50,12 @@ page 50130 "Role Center"
                         RunObject = page "Instructor List";
                         ApplicationArea = all;
                     }
+                    action(Seminar)
+                    {
+                        Caption = 'Seminars';
+                        RunObject = page "Seminar Card";
+                        ApplicationArea = all;
+                    }
                     group("Periodic Activities")
                     {
                         action("PeriodicActivities")
