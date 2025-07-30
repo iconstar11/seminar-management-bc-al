@@ -30,11 +30,11 @@ report 50100 "Seminar Reg.Participant List"
             {
             }
         }
-    //     dataitem(CopyLoop; "Seminar Registration Header"){
-    //         DataItemTableView = No
+        //     dataitem(CopyLoop; "Seminar Registration Header"){
+        //         DataItemTableView = No
 
         //     }
-        // }
+    }
     requestpage
     {
         layout
