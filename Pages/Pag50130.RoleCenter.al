@@ -120,6 +120,7 @@ page 50130 "Role Center"
                 }
 
 
+
                 group(Setup)
                 {
                     action("Seminar Setup")
@@ -134,7 +135,49 @@ page 50130 "Role Center"
                         RunObject = page "Seminar Room card";
                         ApplicationArea = All;
                     }
+
                 }
+            }
+            group(Finance)
+            {
+                Caption = 'Finance';
+
+            }
+            group("Sale & Marketing")
+            {
+
+            }
+            group(Purchase)
+            {
+
+            }
+            group(Warehouse)
+            {
+
+            }
+            group(Manufacturing)
+            {
+
+            }
+            group(Service)
+            {
+
+            }
+            group("Human Resourses")
+            {
+
+            }
+            group("Resource Planning")
+            {
+
+            }
+            group(Admnistartion)
+            {
+
+            }
+            group(Shortcuts)
+            {
+
             }
         }
     }

@@ -1,4 +1,5 @@
 namespace ALProject.ALProject;
+using seminarmanagementbcal.seminarmanagementbcal;
 
 page 50105 "Seminar List"
 {
@@ -70,6 +71,21 @@ page 50105 "Seminar List"
                 RunObject = Page "Seminar Card";
                 RunPageLink = "No." = FIELD("No.");
             }
+            action(SeminarEntries)
+            {
+                Caption = 'Seminar Entries';
+                RunObject = page "Seminar Ledger Entries";
+                RunPageLink = "Seminar No." = field("No.");
+                RunPageView = sorting("Seminar No.", "Posting Date");
+
+            }
+            action(Registrations)
+            {
+                Caption = 'Registrations';
+                RunObject = page "Seminar Registration LIst";
+                RunPageLink = "Seminar Code" = field("No.");
+            }
+
         }
     }
 }
