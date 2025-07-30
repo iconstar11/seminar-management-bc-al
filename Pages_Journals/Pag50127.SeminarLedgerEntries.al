@@ -1,4 +1,5 @@
 namespace seminarmanagementbcal.seminarmanagementbcal;
+using Microsoft.Foundation.Navigate;
 
 page 50127 "Seminar Ledger Entries"
 {
@@ -116,7 +117,25 @@ page 50127 "Seminar Ledger Entries"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    NavigatePage: Page Navigate;
+                begin
+                    NavigatePage.SetDoc(Rec."Posting Date", Rec."Document No.");
+                    NavigatePage.RunModal();
+                end;
             }
+
         }
     }
+    var
+        PostingDateFilter: Text;
+        DocNoFilter: Code[20];
+
+    procedure SetDoc(PostDate: Date; DocNo: Code[20])
+    begin
+        PostingDateFilter := Format(PostDate);
+        DocNoFilter := DocNo;
+    end;
 }

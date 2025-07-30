@@ -1,4 +1,5 @@
 namespace seminarmanagementbcal.seminarmanagementbcal;
+using Microsoft.Foundation.Navigate;
 
 page 50125 "Posted Seminar Reg.Card"
 {
@@ -122,6 +123,14 @@ page 50125 "Posted Seminar Reg.Card"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    NavigatePage: Page Navigate;
+                begin
+                    NavigatePage.SetDoc(Rec."Posting Date", Rec."No.");
+                    NavigatePage.RunModal();
+                end;
             }
         }
     }
