@@ -1,11 +1,9 @@
-namespace seminarmanagementbcal.seminarmanagementbcal;
-using System.Utilities;
-
 report 50100 "Seminar Reg.Participant List"
 {
     ApplicationArea = All;
     Caption = 'Seminar Reg.- Participant List';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = Word;
 
     dataset
     {
@@ -35,17 +33,14 @@ report 50100 "Seminar Reg.Participant List"
                         DataItemLinkReference = "Seminar Registration Header";
                         DataItemLink = "Document No." = field("No.");
 
-                        // Add any additional participant fields you need
+                        column(Bill_to_Customer_No_; "Bill-to Customer No.") { }
+                        column(Participant_Contact_No_; "Participant Contact No.") { }
+                        column(Participant_Name; "Participant Name") { }
                     }
                 }
             }
         }
     }
-
-    // layout
-    // {
-    //     rcdl Or Word layout
-    // }
 
     requestpage
     {
@@ -56,8 +51,29 @@ report 50100 "Seminar Reg.Participant List"
                 group(Options)
                 {
                     // Optional filters/fields
+
                 }
             }
         }
     }
+
+
+
+    rendering
+    {
+        layout(RDLC)
+        {
+            Type = RDLC;
+            LayoutFile = 'ReportLayout/SeminarParticipantList.rdlc';
+            Caption = 'Seminar Part. List RDLC';
+        }
+        layout(Word)
+        {
+            Type = Word;
+            LayoutFile = 'ReportLayout/SeminarParticipantList.docx';
+            Caption = 'Seminar Part. List Word';
+        }
+    }
+
+
 }
