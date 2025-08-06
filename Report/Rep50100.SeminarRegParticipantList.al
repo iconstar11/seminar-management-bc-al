@@ -18,10 +18,11 @@ report 50100 "Seminar Reg.Participant List"
             column(Duration; "Duration") { }
             column(InstructorName; "Instructor Name") { }
             column(RoomName; "Room Name") { }
-
             dataitem(CopyLoop; Integer)
             {
                 DataItemTableView = sorting(Number);
+
+
 
                 dataitem(PageLoop; Integer)
                 {
@@ -38,7 +39,37 @@ report 50100 "Seminar Reg.Participant List"
                         column(Participant_Name; "Participant Name") { }
                     }
                 }
+
+                trigger OnPreDataItem()
+                begin
+                    NoOfLoops := Abs(NoOfCopies) + 1;
+                    SetRange(Number, 1, NoOfLoops);
+                end;
+
+
+
+
+
             }
+
+            trigger OnAfterGetRecord()
+            begin
+                CalcFields("Instructor Name");
+            end;
+
+
+            trigger OnPostDataItem()
+            var
+                SeminarHeader: Record "Seminar Registration Header";
+            begin
+                if not CurrReport.Preview then begin
+                    if SeminarHeader.Get(SeminarHeaderNo) then
+                        SeminarCountPrinted.Run(SeminarHeader);
+                end;
+            end;
+
+
+
         }
     }
 
@@ -51,13 +82,10 @@ report 50100 "Seminar Reg.Participant List"
                 group(Options)
                 {
                     // Optional filters/fields
-
                 }
             }
         }
     }
-
-
 
     rendering
     {
@@ -75,5 +103,10 @@ report 50100 "Seminar Reg.Participant List"
         }
     }
 
+    var
+        SeminarCountPrinted: Codeunit "Seminar Registration-Printed";
+        NoOfCopies: Integer;
+        NoOfLoops: Integer;
 
+        SeminarHeaderNo: Code[20];
 }
