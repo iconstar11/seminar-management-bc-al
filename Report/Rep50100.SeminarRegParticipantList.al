@@ -75,12 +75,19 @@ report 50100 "Seminar Reg.Participant List"
 
     requestpage
     {
+        SaveValues = true;
         layout
         {
+
             area(Content)
             {
                 group(Options)
                 {
+                    field(NoOfCopies; NoOfCopies)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'No. Of Copies';
+                    }
                     // Optional filters/fields
                 }
             }
