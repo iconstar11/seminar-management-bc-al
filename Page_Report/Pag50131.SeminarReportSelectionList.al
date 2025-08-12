@@ -30,11 +30,11 @@ page 50131 "Seminar Report Selection List"
             {
                 field(Sequence; Rec.Sequence)
                 {
-                    ToolTip = 'Specifies the value of the Sequence field.', Comment = '%';
+                    ToolTip = 'Specifies the value of the Sequence field.';
                 }
                 field("Report ID"; Rec."Report ID")
                 {
-                    ToolTip = 'Specifies the value of the Report ID field.', Comment = '%';
+                    ToolTip = 'Specifies the value of the Report ID field.';
 
                     trigger OnValidate()
                     var
@@ -48,7 +48,7 @@ page 50131 "Seminar Report Selection List"
                 }
                 field("Report Name"; Rec."Report Name")
                 {
-                    ToolTip = 'Specifies the value of the Report Name field.', Comment = '%';
+                    ToolTip = 'Specifies the value of the Report Name field.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -98,16 +98,15 @@ page 50131 "Seminar Report Selection List"
     end;
 
     procedure SetUsageFilter()
+    var
+        FilterRec: Record "Seminar Report Selections";
     begin
         if ReportUsage = ReportUsage::Registration then begin
-            FilterView := 'Usage=CONST(S.Registration)';
-            CurrPage.SetTableView(Rec);
+            FilterRec.SetRange(Usage, FilterRec.Usage::"S.Registration");
+
         end;
     end;
 
-
     var
         ReportUsage: Option Registration;
-        FilterView: Text;
 }
-

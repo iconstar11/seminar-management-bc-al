@@ -32,6 +32,7 @@ page 50130 "Role Center"
     }
     actions
     {
+
         area(Sections)
         {
             group(SeminarMenu)
@@ -178,6 +179,17 @@ page 50130 "Role Center"
             group(Shortcuts)
             {
 
+            }
+
+
+            group("Seminar Reporting")
+            {
+                action(SeminarReportSelection)
+                {
+                    Caption = 'Report Selections';
+                    ApplicationArea = All;
+                    RunObject = Page "Seminar Report Selection List";
+                }
             }
         }
     }
