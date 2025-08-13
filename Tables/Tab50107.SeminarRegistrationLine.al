@@ -32,7 +32,7 @@ table 50107 "Seminar Registration Line"
             TableRelation = Contact;
 
 
-            trigger OnLookup()
+            trigger OnValidate()
             var
                 Contact: Record Contact;
             begin

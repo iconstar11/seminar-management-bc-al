@@ -8,6 +8,7 @@ page 50108 "Seminar Registration LIst"
     PageType = List;
     SourceTable = "Seminar Registration Header";
     Editable = false;
+    CardPageId = 50122;
 
     layout
     {
