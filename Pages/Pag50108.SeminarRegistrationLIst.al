@@ -63,6 +63,23 @@ page 50108 "Seminar Registration LIst"
                 Promoted = true;
                 PromotedCategory = Process;
             }
+            action(PrintSeminar)
+            {
+                ApplicationArea = All;
+                Caption = 'Print';
+                Image = Print;
+
+                trigger OnAction()
+                var
+                    PrintCU: Codeunit "Seminar Document-Print";
+                    SemRegHeader: Record "Seminar Registration Header";
+                begin
+                    // Get the current record
+                    SemRegHeader := Rec;
+                    // Call the print function
+                    PrintCU.PrintSeminarRegistrationHeader(SemRegHeader);
+                end;
+            }
         }
     }
 }

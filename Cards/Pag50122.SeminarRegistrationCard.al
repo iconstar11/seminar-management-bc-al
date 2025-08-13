@@ -162,6 +162,23 @@ page 50122 "Seminar Registration Card"
                     PromotedCategory = Process;
                     // Add your posting logic here or reference an existing codeunit if available
                 }
+                action(PrintSeminar)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Print';
+                    Image = Print;
+
+                    trigger OnAction()
+                    var
+                        PrintCU: Codeunit "Seminar Document-Print";
+                        SemRegHeader: Record "Seminar Registration Header";
+                    begin
+                        // Get the current record
+                        SemRegHeader := Rec;
+                        // Call the print function
+                        PrintCU.PrintSeminarRegistrationHeader(SemRegHeader);
+                    end;
+                }
             }
         }
     }

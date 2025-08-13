@@ -1,8 +1,8 @@
-table 50112 "Custom Report Mapping"
+table 50124 "Custom Report Mapping"
 {
     Caption = 'Custom Report Mapping';
     DataClassification = ToBeClassified;
-    
+
     fields
     {
         field(1; "Report ID"; Integer)
