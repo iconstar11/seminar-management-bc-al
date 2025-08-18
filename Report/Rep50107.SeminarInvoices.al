@@ -11,7 +11,6 @@ using Microsoft.Sales.Setup;
 
 report 50107 "Seminar Invoices"
 {
-
     ProcessingOnly = true;
     ApplicationArea = all;
     UsageCategory = Tasks;
@@ -24,66 +23,6 @@ report 50107 "Seminar Invoices"
                                 where("Remaining Amount" = filter(<> 0));
             RequestFilterFields = "Bill-to Customer No.", "Seminar No.", "Posting Date";
 
-            trigger OnAfterGetRecord()
-            begin
-                if PostingDateReq = 0D then
-                    Error(Text000);
-                if DocDateReq = 0D then
-                    Error(Text001);
-
-                if FirstEntry then begin
-                    Window.Open(Text002);
-                    FirstEntry := false;
-                end;
-
-                // Create Sales Header
-                Clear(SalesHeader);
-                SalesHeader.Init();
-                SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
-                SalesHeader.Validate("Bill-to Customer No.", "Bill-to Customer No.");
-                SalesHeader."Posting Date" := PostingDateReq;
-                SalesHeader."Document Date" := DocDateReq;
-                SalesHeader.Insert(true);
-
-                // Create Sales Line
-                Clear(SalesLine);
-                SalesLine.Init();
-                SalesLine.Validate("Document No.", SalesHeader."No.");
-                SalesLine.Validate("Line No.", NextLineNo + 10000);
-                SalesLine.Validate(Description, "Seminar No.");
-                SalesLine.Validate(Quantity, 1);
-                SalesLine.Validate("Unit Price", "Remaining Amount");
-                SalesLine.Insert(true);
-
-                // Apply invoice discount if needed
-                if CalcInvDisc then begin
-                    SalesLine.Reset();
-                    SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-                    SalesLine.SetRange("Document No.", SalesHeader."No.");
-                    if SalesLine.FindSet() then
-                        repeat
-                            SalesCalcDisc.Run(SalesLine);
-                        until SalesLine.Next() = 0;
-                end;
-
-                // Post the invoice if requested
-                if PostInc then
-                    SalesPost.Run(SalesHeader);
-
-                NoOfSalesInv += 1;
-                NextLineNo += 10000;
-            end;
-
-            trigger OnPostDataItem()
-            begin
-                if NoOfSalesInv > 0 then
-                    Message(Text005, NoOfSalesInv)
-                else
-                    Message(Text007);
-
-                Window.Close();
-            end;
-
             trigger OnPreDataItem()
             begin
                 if PostingDateReq = 0D then
@@ -92,41 +31,134 @@ report 50107 "Seminar Invoices"
                     Error(Text001);
 
                 Window.Open(Text002 + Text003 + Text004);
+                FirstEntry := true;
+            end;
+
+            trigger OnAfterGetRecord()
+            begin
+                // Get Job Ledger Entry
+                if not JobLedgEntry.Get("Job Ledger Entry No.") then
+                    exit;
+
+                // Validate customer is not blocked
+                if Cust.Get("Bill-to Customer No.") then
+                    if (Cust.Blocked = Cust.Blocked::All) or (Cust.Blocked = Cust.Blocked::Invoice) then begin
+                        NoOfSalesInvErrors += 1;
+                        exit;
+                    end;
+
+                // Handle new Sales Header if Bill-to changes
+                if SalesHeader."Bill-to Customer No." <> "Bill-to Customer No." then begin
+                    Window.Update(1, "Bill-to Customer No.");
+                    if SalesHeader."No." <> '' then
+                        FinalizeSalesInvHeader();
+
+                    InsertSalesInvHeader(SeminarLedgerEntry);
+                    SalesLine."Document Type" := SalesHeader."Document Type";
+                    SalesLine."Document No." := SalesHeader."No.";
+                end;
+
+                // Update dialog with registration no.
+                Window.Update(2, "Seminar Registration No.");
+
+                // Create Sales Line
+                Clear(SalesLine);
+                SalesLine.Init();
+                SalesLine.Validate("Document Type", SalesHeader."Document Type");
+                SalesLine.Validate("Document No.", SalesHeader."No.");
+                SalesLine.Validate("Line No.", NextLineNo);
+
+                SalesLine.Type := JobLedgEntry.Type;
+
+                // If G/L Account, ensure posting group exists
+                if JobLedgEntry.Type = JobLedgEntry.Type::"G/L Account" then begin
+                    Job.TestField("Job Posting Group");
+                    JobPostingGr.Get(Job."Job Posting Group");
+                    // Old "G/L Exp. Sales Acc." replaced with modern field
+                    JobPostingGr.TestField("Job Sales Applied Account");
+                    SalesLine.Validate("No.", JobPostingGr."Job Costs Applied Account");
+                end else
+                    SalesLine.Validate("No.", JobLedgEntry."No.");
+
+                SalesLine.Validate(Description, "Seminar Registration No.");
+                SalesLine.Validate("Work Type Code", JobLedgEntry."Work Type Code");
+                SalesLine.Validate("Unit of Measure Code", JobLedgEntry."Unit of Measure Code");
+
+                if JobLedgEntry.Quantity <> 0 then
+                    SalesLine.Validate("Unit Price", JobLedgEntry."Total Price" / JobLedgEntry.Quantity);
+
+                // Handle currency conversion
+                if JobLedgEntry.Quantity <> 0 then
+                    SalesLine.Validate("Unit Price", JobLedgEntry."Total Price" / JobLedgEntry.Quantity);
+
+                // Handle currency conversion
+                if SalesHeader."Currency Code" <> '' then begin
+                    SalesLine."Unit Price" :=
+                            CurrExchRate.ExchangeAmtLCYToFCY(
+                            SalesHeader."Posting Date",
+                            SalesHeader."Currency Code",
+                            SalesLine."Unit Price",
+                            SalesHeader."Currency Factor");
+                end;
+
+                SalesLine.Validate("Unit Cost (LCY)", JobLedgEntry."Total Cost" / JobLedgEntry.Quantity);
+
+                SalesLine.Validate("Unit Cost (LCY)", JobLedgEntry."Total Cost" / JobLedgEntry.Quantity);
+                SalesLine.Validate(Quantity, JobLedgEntry.Quantity);
+                SalesLine.Validate("Job No.", JobLedgEntry."Job No.");
+
+                // Phase Code / Task Code / Step Code fields removed in BC → skipped
+
+                // Old "Applies-to ID" logic removed (not available in BC)
+                // Instead, we only keep invoice linking logic if needed
+
+                SalesLine.Insert(true);
+                NextLineNo += 10000;
+            end;
+
+
+            trigger OnPostDataItem()
+            begin
+                if SalesHeader."No." <> '' then
+                    FinalizeSalesInvHeader();
+
+                if NoOfSalesInv > 0 then
+                    Message(Text005, NoOfSalesInv)
+                else
+                    Message(Text007);
+
+                Window.Close();
             end;
         }
     }
+
     local procedure InsertSalesInvHeader(SeminarLedgerEntry: Record "Seminar Ledger Entry")
     begin
         Clear(SalesHeader);
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader."No." := ''; // Let system assign number
-        // Insert first so that integrations/triggers have a record
         SalesHeader.Insert(true);
-        // Validate Sell-to Customer No. (this may pull default values)
+
         SalesHeader.Validate("Sell-to Customer No.", SeminarLedgerEntry."Bill-to Customer No.");
-        // Ensure Bill-to is aligned (in case Sell-to validation changed it)
         if SalesHeader."Bill-to Customer No." <> SeminarLedgerEntry."Bill-to Customer No." then
             SalesHeader.Validate("Bill-to Customer No.", SeminarLedgerEntry."Bill-to Customer No.");
 
-        // Validate dates using Validate to respect checks and defaults
         SalesHeader.Validate("Posting Date", PostingDateReq);
         SalesHeader.Validate("Document Date", DocDateReq);
         SalesHeader.Validate("Currency Code", '');
 
         SalesHeader.Modify(true);
-
         Commit();
+
         NextLineNo := 10000;
     end;
 
-
     local procedure FinalizeSalesInvHeader()
     begin
-        // Apply invoice discount if requested
-        if CalcInvDisc then begin
+        if CalcInvDisc then
             SalesCalcDisc.Run(SalesLine);
-        end;
+
         Commit();
 
         Clear(SalesCalcDisc);
@@ -134,17 +166,10 @@ report 50107 "Seminar Invoices"
 
         NoOfSalesInv += 1;
 
-        if PostInc then begin
+        if PostInc then
             if not SalesPost.Run(SalesHeader) then
                 NoOfSalesInvErrors += 1;
-        end;
     end;
-
-
-
-
-
-
 
     var
         CompanyInfo: Record "Company Information";
@@ -180,6 +205,4 @@ report 50107 "Seminar Invoices"
         Text006: Label 'Not all the invoices were posted. A total of %1 invoices were not posted.';
         Text007: Label 'There is nothing to invoice.';
 }
-
-
 
