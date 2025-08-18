@@ -86,6 +86,18 @@ page 50105 "Seminar List"
                 RunPageLink = "Seminar Code" = field("No.");
             }
 
+            action(Statistics)
+            {
+                Caption = 'Statistics';
+                Image = Statistics;
+                ShortCutKey = 'F9';
+                ApplicationArea = All;
+                RunObject = Page "Seminar Statistics";
+                RunPageLink = "No." = field("No.");
+                Promoted = true;
+                PromotedCategory = Process;
+            }
+
         }
     }
 }

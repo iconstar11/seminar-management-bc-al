@@ -130,6 +130,17 @@ page 50104 "Seminar Card"
                     RunObject = page "Seminar Registration LIst";
                     RunPageLink = "Seminar Code" = field("No.");
                 }
+                action(Statistics)
+                {
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F9';
+                    ApplicationArea = All;
+                    RunObject = Page "Seminar Statistics";
+                    RunPageLink = "No." = field("No.");
+                    Promoted = true;
+                    PromotedCategory = Process;
+                }
 
             }
         }
