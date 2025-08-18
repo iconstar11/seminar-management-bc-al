@@ -83,6 +83,16 @@ report 50107 "Seminar Invoices"
 
                 Window.Close();
             end;
+
+            trigger OnPreDataItem()
+            begin
+                if PostingDateReq = 0D then
+                    Error(Text000);
+                if DocDateReq = 0D then
+                    Error(Text001);
+
+                Window.Open(Text002 + Text003 + Text004);
+            end;
         }
     }
     local procedure InsertSalesInvHeader(SeminarLedgerEntry: Record "Seminar Ledger Entry")
@@ -90,10 +100,24 @@ report 50107 "Seminar Invoices"
         Clear(SalesHeader);
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
-        SalesHeader.Validate("Bill-to Customer No.", SeminarLedgerEntry."Bill-to Customer No.");
-        SalesHeader."Posting Date" := PostingDateReq;
-        SalesHeader."Document Date" := DocDateReq;
+        SalesHeader."No." := ''; // Let system assign number
+        // Insert first so that integrations/triggers have a record
         SalesHeader.Insert(true);
+        // Validate Sell-to Customer No. (this may pull default values)
+        SalesHeader.Validate("Sell-to Customer No.", SeminarLedgerEntry."Bill-to Customer No.");
+        // Ensure Bill-to is aligned (in case Sell-to validation changed it)
+        if SalesHeader."Bill-to Customer No." <> SeminarLedgerEntry."Bill-to Customer No." then
+            SalesHeader.Validate("Bill-to Customer No.", SeminarLedgerEntry."Bill-to Customer No.");
+
+        // Validate dates using Validate to respect checks and defaults
+        SalesHeader.Validate("Posting Date", PostingDateReq);
+        SalesHeader.Validate("Document Date", DocDateReq);
+        SalesHeader.Validate("Currency Code", '');
+
+        SalesHeader.Modify(true);
+
+        Commit();
+        NextLineNo := 10000;
     end;
 
 
@@ -103,8 +127,7 @@ report 50107 "Seminar Invoices"
         if CalcInvDisc then begin
             SalesCalcDisc.Run(SalesLine);
         end;
-
-        Commit(); // ⚠️ Book requires this, but in modern AL be careful
+        Commit();
 
         Clear(SalesCalcDisc);
         Clear(SalesPost);
@@ -116,6 +139,10 @@ report 50107 "Seminar Invoices"
                 NoOfSalesInvErrors += 1;
         end;
     end;
+
+
+
+
 
 
 
