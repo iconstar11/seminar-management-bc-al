@@ -85,6 +85,39 @@ report 50107 "Seminar Invoices"
             end;
         }
     }
+    local procedure InsertSalesInvHeader(SeminarLedgerEntry: Record "Seminar Ledger Entry")
+    begin
+        Clear(SalesHeader);
+        SalesHeader.Init();
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        SalesHeader.Validate("Bill-to Customer No.", SeminarLedgerEntry."Bill-to Customer No.");
+        SalesHeader."Posting Date" := PostingDateReq;
+        SalesHeader."Document Date" := DocDateReq;
+        SalesHeader.Insert(true);
+    end;
+
+
+    local procedure FinalizeSalesInvHeader()
+    begin
+        // Apply invoice discount if requested
+        if CalcInvDisc then begin
+            SalesCalcDisc.Run(SalesLine);
+        end;
+
+        Commit(); // ⚠️ Book requires this, but in modern AL be careful
+
+        Clear(SalesCalcDisc);
+        Clear(SalesPost);
+
+        NoOfSalesInv += 1;
+
+        if PostInc then begin
+            if not SalesPost.Run(SalesHeader) then
+                NoOfSalesInvErrors += 1;
+        end;
+    end;
+
+
 
     var
         CompanyInfo: Record "Company Information";
@@ -120,4 +153,6 @@ report 50107 "Seminar Invoices"
         Text006: Label 'Not all the invoices were posted. A total of %1 invoices were not posted.';
         Text007: Label 'There is nothing to invoice.';
 }
+
+
 
