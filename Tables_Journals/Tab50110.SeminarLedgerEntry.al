@@ -66,6 +66,7 @@ table 50110 "Seminar Ledger Entry"
         {
             Caption = 'Total Price';
             AutoFormatType = 1;
+
         }
         field(14; "Participant Contact No."; Code[20])
         {
@@ -162,6 +163,8 @@ table 50110 "Seminar Ledger Entry"
                     "User ID" := UserRec."User Name";
             end;
         }
+
+
     }
     keys
     {
@@ -181,5 +184,10 @@ table 50110 "Seminar Ledger Entry"
         {
             Clustered = false;
         }
+        key("Seminar Sums"; "Seminar No.", "Posting Date", "Charge Type", Chargeable)
+        {
+            SumIndexFields = "Total Price";
+        }
+
     }
 }

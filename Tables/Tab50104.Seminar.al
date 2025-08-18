@@ -116,6 +116,54 @@ table 50104 Seminar
             TableRelation = "No. Series";
 
         }
+        field(15; "Date Filter"; Date)
+        {
+            FieldClass = FlowFilter;
+        }
+
+        field(16; "Charge Type Filter"; Option)
+        {
+            FieldClass = FlowFilter;
+            OptionMembers = Instructor,Room,Participant,Charge;
+        }
+
+        field(17; "Total Price"; Decimal)
+        {
+            FieldClass = FlowField;
+            CalcFormula = sum("Seminar Ledger Entry"."Total Price"
+        where("Seminar No." = field("No."),
+              "Posting Date" = field("Date Filter"),
+              "Charge Type" = field("Charge Type Filter")));
+            Editable = false;
+            AutoFormatType = 1;
+        }
+
+        field(18; "Total Price (Not Chargeable)"; Decimal)
+        {
+            FieldClass = FlowField;
+            CalcFormula = sum("Seminar Ledger Entry"."Total Price"
+        where("Seminar No." = field("No."),
+              "Posting Date" = field("Date Filter"),
+              "Charge Type" = field("Charge Type Filter"),
+              Chargeable = const(false)));
+            Editable = false;
+            AutoFormatType = 1;
+        }
+
+
+        field(19; "Total Price (Chargeable)"; Decimal)
+        {
+            FieldClass = FlowField;
+            CalcFormula = sum("Seminar Ledger Entry"."Total Price"
+        where("Seminar No." = field("No."),
+              "Posting Date" = field("Date Filter"),
+              "Charge Type" = field("Charge Type Filter"),
+              Chargeable = const(true)));
+            Editable = false;
+            AutoFormatType = 1;
+        }
+
+
 
 
     }
