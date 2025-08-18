@@ -1,5 +1,13 @@
 namespace seminarmanagementbcal.seminarmanagementbcal;
 using Microsoft.Foundation.Company;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Posting;
+using Microsoft.Finance.Currency;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Sales.Setup;
 
 report 50101 "Seminar Reg.-Part. Certificate"
 {
@@ -59,7 +67,8 @@ report 50101 "Seminar Reg.-Part. Certificate"
             Caption = 'Certificate Confirmation Layout';
         }
     }
-
     var
         CompanyInfo: Record "Company Information";
+
+
 }
