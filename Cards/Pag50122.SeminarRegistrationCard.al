@@ -157,10 +157,15 @@ page 50122 "Seminar Registration Card"
                 {
                     Caption = 'Post...';
                     ShortcutKey = 'F11';
-                    RunObject = Codeunit "Seminar-Post";
                     Promoted = true;
                     PromotedCategory = Process;
-                    // Add your posting logic here or reference an existing codeunit if available
+
+                    trigger OnAction()
+                    var
+                        SeminarPost: Codeunit "Seminar-Post";
+                    begin
+                        SeminarPost.Run(Rec); // Rec = current Seminar Registration Header record
+                    end;
                 }
                 action(PrintSeminar)
                 {

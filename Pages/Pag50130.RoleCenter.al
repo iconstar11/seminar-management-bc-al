@@ -63,6 +63,7 @@ page 50130 "Role Center"
                         {
                             Caption = 'Periodic Activities';
                             ApplicationArea = all;
+                            RunObject = report "Seminar Invoices";
 
                         }
                     }

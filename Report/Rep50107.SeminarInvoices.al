@@ -34,6 +34,8 @@ report 50107 "Seminar Invoices"
                 FirstEntry := true;
             end;
 
+
+
             trigger OnAfterGetRecord()
             begin
                 // Get Job Ledger Entry
@@ -116,7 +118,6 @@ report 50107 "Seminar Invoices"
                 NextLineNo += 10000;
             end;
 
-
             trigger OnPostDataItem()
             begin
                 if SalesHeader."No." <> '' then
@@ -129,7 +130,57 @@ report 50107 "Seminar Invoices"
 
                 Window.Close();
             end;
+
+
+
+
+
         }
+    }
+    requestpage
+    {
+        layout
+        {
+            area(Content)
+            {
+                group(Options)
+                {
+                    field(PostingDateReq; PostingDateReq)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Posting Date';
+                    }
+                    field(DocDateReq; DocDateReq)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Document Date';
+                    }
+                    field(CalcInvDisc; CalcInvDisc)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Calculate Invoice Discount';
+                    }
+                    field(PostInc; PostInc)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Post Invoices';
+                    }
+                }
+
+            }
+
+        }
+        trigger OnOpenPage()
+        begin
+            if PostingDateReq = 0D then
+                PostingDateReq := WorkDate();
+            if DocDateReq = 0D then
+                DocDateReq := WorkDate();
+
+            if SalesSetup.Get() then
+                CalcInvDisc := SalesSetup."Calc. Inv. Discount";
+        end;
+
     }
 
     local procedure InsertSalesInvHeader(SeminarLedgerEntry: Record "Seminar Ledger Entry")
@@ -150,7 +201,6 @@ report 50107 "Seminar Invoices"
 
         SalesHeader.Modify(true);
         Commit();
-
         NextLineNo := 10000;
     end;
 
@@ -163,9 +213,7 @@ report 50107 "Seminar Invoices"
 
         Clear(SalesCalcDisc);
         Clear(SalesPost);
-
         NoOfSalesInv += 1;
-
         if PostInc then
             if not SalesPost.Run(SalesHeader) then
                 NoOfSalesInvErrors += 1;
@@ -185,7 +233,7 @@ report 50107 "Seminar Invoices"
         CurrExchRate: Record "Currency Exchange Rate";
         SalesCalcDisc: Codeunit "Sales-Calc. Discount";
         SalesPost: Codeunit "Sales-Post";
-        JobLedgerEntry: Code[10];
+        JobLedgEntrySign: Code[10];
         Window: Dialog;
         PostingDateReq: Date;
         DocDateReq: Date;
@@ -195,6 +243,8 @@ report 50107 "Seminar Invoices"
         NoOfSalesInvErrors: Integer;
         NoOfSalesInv: Integer;
         FirstEntry: Boolean;
+
+
 
         Text000: Label 'Please enter the posting Date';
         Text001: Label 'Please enter the document Date';

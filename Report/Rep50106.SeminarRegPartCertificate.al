@@ -9,7 +9,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Sales.Setup;
 
-report 50101 "Seminar Reg.-Part. Certificate"
+report 50106 "Seminar Reg.-Part. Certificate"
 {
     Caption = 'Seminar Reg.-Part. Certificate';
     ApplicationArea = All;
