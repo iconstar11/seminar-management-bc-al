@@ -9,47 +9,53 @@ using Microsoft.Sales.Customer;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Sales.Setup;
 
-codeunit 50107 "Seminar Invoices"
+report 50107 "Seminar Invoices"
 {
 
-    Subtype = Normal;
+    ProcessingOnly = true;
+    ApplicationArea = all;
+    UsageCategory = Tasks;
 
-    procedure CreateInvoices()
-    var
-        SeminarLedgerEntry: Record "Seminar Ledger Entry";
-    begin
-        if PostingDateReq = 0D then
-            Error(Text000);
-        if DocDateReq = 0D then
-            Error(Text001);
+    dataset
+    {
+        dataitem(SeminarLedgerEntry; "Seminar Ledger Entry")
+        {
+            DataItemTableView = sorting("Bill-to Customer No.", "Seminar Registration No.", "Charge Type", "Participant Contact No.")
+                                where("Remaining Amount" = filter(<> 0));
+            RequestFilterFields = "Bill-to Customer No.", "Seminar No.", "Posting Date";
 
-        Window.Open(Text002);
+            trigger OnAfterGetRecord()
+            begin
+                if PostingDateReq = 0D then
+                    Error(Text000);
+                if DocDateReq = 0D then
+                    Error(Text001);
 
-        SeminarLedgerEntry.SetCurrentKey("Bill-to Customer No.", "Seminar Registration No.", "Charge Type", "Participant Contact No.");
-        SeminarLedgerEntry.SetFilter("Remaining Amount", '<>0');
+                if FirstEntry then begin
+                    Window.Open(Text002);
+                    FirstEntry := false;
+                end;
 
-        if SeminarLedgerEntry.FindSet() then begin
-            repeat
-                // Create new Sales Header
+                // Create Sales Header
                 Clear(SalesHeader);
                 SalesHeader.Init();
                 SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
-                SalesHeader."Bill-to Customer No." := SeminarLedgerEntry."Bill-to Customer No.";
+                SalesHeader.Validate("Bill-to Customer No.", "Bill-to Customer No.");
                 SalesHeader."Posting Date" := PostingDateReq;
                 SalesHeader."Document Date" := DocDateReq;
                 SalesHeader.Insert(true);
 
-                // Create Sales Lines
+                // Create Sales Line
                 Clear(SalesLine);
                 SalesLine.Init();
                 SalesLine.Validate("Document No.", SalesHeader."No.");
                 SalesLine.Validate("Line No.", NextLineNo + 10000);
-                SalesLine.Validate(Description, SeminarLedgerEntry."Seminar No.");
+                SalesLine.Validate(Description, "Seminar No.");
                 SalesLine.Validate(Quantity, 1);
-                SalesLine.Validate("Unit Price", SeminarLedgerEntry."Remaining Amount");
+                SalesLine.Validate("Unit Price", "Remaining Amount");
                 SalesLine.Insert(true);
 
-                // Apply discounts if needed
+                // Apply invoice discount if needed
                 if CalcInvDisc then begin
                     SalesLine.Reset();
                     SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -60,21 +66,25 @@ codeunit 50107 "Seminar Invoices"
                         until SalesLine.Next() = 0;
                 end;
 
-                // Post the invoice
+                // Post the invoice if requested
                 if PostInc then
                     SalesPost.Run(SalesHeader);
 
                 NoOfSalesInv += 1;
                 NextLineNo += 10000;
-            until SeminarLedgerEntry.Next() = 0;
+            end;
 
-            Message(Text005, NoOfSalesInv);
-        end else
-            Message(Text007);
+            trigger OnPostDataItem()
+            begin
+                if NoOfSalesInv > 0 then
+                    Message(Text005, NoOfSalesInv)
+                else
+                    Message(Text007);
 
-        Window.Close();
-    end;
-
+                Window.Close();
+            end;
+        }
+    }
 
     var
         CompanyInfo: Record "Company Information";
@@ -99,7 +109,7 @@ codeunit 50107 "Seminar Invoices"
         NextLineNo: Integer;
         NoOfSalesInvErrors: Integer;
         NoOfSalesInv: Integer;
-
+        FirstEntry: Boolean;
 
         Text000: Label 'Please enter the posting Date';
         Text001: Label 'Please enter the document Date';
