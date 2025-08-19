@@ -396,6 +396,44 @@ table 50105 "Seminar Registration Header"
         end;
     end;
 
+    local procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20])
+    var
+        DimMgt: Codeunit DimensionManagement;
+        TableIDs: array[10] of Integer;
+        Nos: array[10] of Code[20];
+    begin
+        // Assign parameters into arrays
+        Clear(TableIDs);
+        Clear(Nos);
+
+        TableIDs[1] := Type1;
+        Nos[1] := No1;
+        TableIDs[2] := Type2;
+        Nos[2] := No2;
+        TableIDs[3] := Type3;
+        Nos[3] := No3;
+        TableIDs[4] := Type4;
+        Nos[4] := No4;
+
+        // Reset shortcut dimensions
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+
+        // Save defaults directly instead of GetDefaultDim/UpdateDocDefaultDim
+        if "No." <> '' then begin
+            if Nos[1] <> '' then
+                DimMgt.SaveDefaultDim(TableIDs[1], Nos[1], 1, "Shortcut Dimension 1 Code");
+            if Nos[2] <> '' then
+                DimMgt.SaveDefaultDim(TableIDs[2], Nos[2], 2, "Shortcut Dimension 2 Code");
+            if Nos[3] <> '' then
+                DimMgt.SaveDefaultDim(TableIDs[3], Nos[3], 1, "Shortcut Dimension 1 Code"); // or 2 depending on mapping
+            if Nos[4] <> '' then
+                DimMgt.SaveDefaultDim(TableIDs[4], Nos[4], 2, "Shortcut Dimension 2 Code");
+        end;
+    end;
+
+
+
 
 
     var
