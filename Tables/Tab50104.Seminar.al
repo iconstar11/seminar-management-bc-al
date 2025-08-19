@@ -162,6 +162,16 @@ table 50104 Seminar
             Editable = false;
             AutoFormatType = 1;
         }
+        field(20; "Global Dimension 1 Code"; Code[20])
+        {
+            Caption = 'Global Dimension 1 Code';
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+        }
+        field(21; "Global Dimension 2 Code"; Code[20])
+        {
+            Caption = 'Global Dimension 2 Code';
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+        }
 
 
 
