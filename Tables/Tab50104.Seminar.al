@@ -166,11 +166,25 @@ table 50104 Seminar
         {
             Caption = 'Global Dimension 1 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+
+            trigger OnValidate()
+            var
+                DimMgt: Codeunit DimensionManagement;
+            begin
+                ValidateShortcutDimCode(1, "Global Dimension 1 Code");
+            end;
         }
         field(21; "Global Dimension 2 Code"; Code[20])
         {
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+
+            trigger OnValidate()
+            var
+                DimMgt: Codeunit DimensionManagement;
+            begin
+                ValidateShortcutDimCode(2, "Global Dimension 2 Code");
+            end;
         }
 
 
@@ -229,6 +243,8 @@ table 50104 Seminar
     end;
 
     trigger OnInsert()
+    var
+        DimMgt: Codeunit DimensionManagement;
     begin
         // Auto-assign a Seminar No. if it's empty
         if "No." = '' then begin
@@ -236,7 +252,11 @@ table 50104 Seminar
             SeminarSetupRec.TestField("Seminar Nos."); // Ensure setup exists
             NoSeriesCheck.InitSeries(SeminarSetupRec."Seminar Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
+
+        // Update default dimensions after seminar creation
+        DimMgt.UpdateDefaultDim(Database::Seminar, "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
+
 
     trigger OnDelete()
     var
