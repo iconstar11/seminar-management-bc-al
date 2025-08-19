@@ -145,6 +145,31 @@ table 50107 "Seminar Registration Line"
             Caption = 'Registered';
             Editable = false;
         }
+        field(15; "Shortcut Dimension 1 Code"; Code[20])
+        {
+            Caption = 'Shortcut Dimension 1 Code';
+            TableRelation = "Dimension Value".Code
+                where("Global Dimension No." = const(1));
+            CaptionClass = '1,2,1';
+
+            trigger OnValidate()
+            begin
+                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+            end;
+        }
+
+        field(16; "Shortcut Dimension 2 Code"; Code[20])
+        {
+            Caption = 'Shortcut Dimension 2 Code';
+            TableRelation = "Dimension Value".Code
+                where("Global Dimension No." = const(2));
+            CaptionClass = '1,2,2';
+
+            trigger OnValidate()
+            begin
+                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+            end;
+        }
     }
     keys
     {
@@ -174,6 +199,24 @@ table 50107 "Seminar Registration Line"
     begin
         GLSetup.Get();
         Amount := Round("Seminar Price" - "Line Discount Amount", GLSetup."Amount Rounding Precision");
+    end;
+
+    local procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        // Validate the Dimension Value Code entered
+        DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
+
+        // Only save if No. is assigned (record exists in header)
+        if "Document No." <> '' then begin
+            DimMgt.SaveDefaultDim(
+                Database::"Seminar Registration Header",
+                "Document No.",
+                FieldNumber,
+                ShortcutDimCode
+            );
+        end;
     end;
 
 

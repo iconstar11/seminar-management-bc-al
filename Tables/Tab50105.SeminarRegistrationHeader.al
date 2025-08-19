@@ -42,16 +42,15 @@ table 50105 "Seminar Registration Header"
             var
                 SeminarRec: Record Seminar;
                 SemLine: Record "Seminar Registration Line";
+                DimMgt: Codeunit DimensionManagement;
             begin
                 if "Seminar Code" <> xRec."Seminar Code" then begin
-
+                    // Prevent changing Seminar Code if registration lines exist
                     if SemLine.Get("No.") then
-                        Error('Cannot change Seminar Code when registration lines exist.'); // 
+                        Error('Cannot change Seminar Code when registration lines exist.');
 
                     if SeminarRec.Get("Seminar Code") then begin
                         SeminarRec.TestField(Bloked, false);
-                        // SeminarRec.TestField("Gen. Prod. Posting Group");
-                        // SeminarRec.TestField("VAT Prod. Posting Group");
 
                         "Seminar Name" := SeminarRec.Name;
                         Duration := SeminarRec."Seminar Duration";
@@ -63,8 +62,20 @@ table 50105 "Seminar Registration Header"
 
                         Validate("Job No.", SeminarRec."Job No."); // triggers Job validation logic
                     end;
+
+                    // === New Dimension Handling ===
+                    // Rebuild Dimension Set ID based on Seminar, Instructor, Room, Job
+                    "Dimension Set ID" :=
+                        DimMgt.GetCombinedDimensionSetID(
+        "Dimension Set ID",   // existing dimension set
+                              TableID,              // array of related tables
+                              No,                   // array of related record IDs
+        "Shortcut Dimension 1 Code",  // pass current global dim1 value
+        "Shortcut Dimension 2 Code"   // pass current global dim2 value
+    );
                 end;
             end;
+
         }
         field(4; "Seminar Name"; Text[50])
         {
@@ -328,6 +339,13 @@ table 50105 "Seminar Registration Header"
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
+        field(32; "Dimension Set ID"; Integer)
+        {
+            Caption = 'Dimension Set ID';
+            TableRelation = "Dimension Set Entry";
+            Editable = false;
+        }
+
 
     }
     keys
