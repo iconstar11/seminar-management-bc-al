@@ -1,5 +1,6 @@
 namespace ALProject.ALProject;
 using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Dimension;
 using System.EMail;
 
 page 50149 "Seminar Room card"
@@ -125,6 +126,19 @@ page 50149 "Seminar Room card"
         }
         area(Processing)
         {
+            group(Dimensions)
+            {
+                Caption = 'Dimensions';
+                action(SeminarDimensions)
+                {
+                    Caption = 'Seminar Dimensions';
+                    ShortcutKey = 'Shift+Ctrl+D';
+                    ApplicationArea = All;
+                    RunObject = Page "Default Dimensions";
+                    RunPageLink = "Table ID" = const(Database::"Seminar Room"),
+                              "No." = field(Code);
+                }
+            }
             action(SendEmail)
             {
                 Caption = 'Send Email';

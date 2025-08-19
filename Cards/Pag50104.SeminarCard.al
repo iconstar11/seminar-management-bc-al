@@ -1,5 +1,6 @@
 namespace ALProject.ALProject;
 using Microsoft.Foundation.ExtendedText;
+using Microsoft.Finance.Dimension;
 using seminarmanagementbcal.seminarmanagementbcal;
 
 page 50104 "Seminar Card"
@@ -146,6 +147,20 @@ page 50104 "Seminar Card"
         }
         area(Processing)
         {
+
+            group(Dimensions)
+            {
+                Caption = 'Dimensions';
+                action(SeminarDimensions)
+                {
+                    Caption = 'Seminar Dimensions';
+                    ShortcutKey = 'Shift+Ctrl+D';
+                    ApplicationArea = All;
+                    RunObject = Page "Default Dimensions";
+                    RunPageLink = "Table ID" = const(Database::Seminar),
+                              "No." = field("No.");
+                }
+            }
             action(CloseSeminar)
             {
                 Caption = 'Close Seminar';
@@ -190,6 +205,8 @@ page 50104 "Seminar Card"
                     Page.Run(124, Rec);
                 end;
             }
+
+
         }
     }
 

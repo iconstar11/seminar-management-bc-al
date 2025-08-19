@@ -1,4 +1,5 @@
 namespace ALProject.ALProject;
+using Microsoft.Finance.Dimension;
 
 page 50103 "Instructor List"
 {
@@ -39,4 +40,24 @@ page 50103 "Instructor List"
             }
         }
     }
+    actions
+    {
+        area(navigation)
+        {
+            group(Dimensions)
+            {
+                Caption = 'Dimensions';
+                action(InstructorDimensions)
+                {
+                    Caption = 'Instructor Dimensions';
+                    ShortcutKey = 'Shift+Ctrl+D';
+                    ApplicationArea = All;
+                    RunObject = Page "Default Dimensions";
+                    RunPageLink = "Table ID" = const(Database::Instructor),
+                              "No." = field(Code);
+                }
+            }
+        }
+    }
+
 }
