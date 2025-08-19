@@ -303,6 +303,22 @@ table 50105 "Seminar Registration Header"
             Editable = false;
         }
 
+        field(30; "Shortcut Dimension 1 Code"; Code[20])
+        {
+            Caption = 'Shortcut Dimension 1 Code';
+            CaptionClass = '1,2,1';
+            TableRelation = "Dimension Value".Code
+                WHERE("Global Dimension No." = CONST(1));
+        }
+
+        field(31; "Shortcut Dimension 2 Code"; Code[20])
+        {
+            Caption = 'Shortcut Dimension 2 Code';
+            CaptionClass = '1,2,2';
+            TableRelation = "Dimension Value".Code
+                WHERE("Global Dimension No." = CONST(2));
+        }
+
     }
     keys
     {
@@ -350,6 +366,22 @@ table 50105 "Seminar Registration Header"
         NoSeriesMgt.SetSeries(NewNo);
         "No." := NewNo;
         exit(true);
+    end;
+
+    procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        // Validate the Dimension Value Code entered
+        DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
+
+        // Save Default Dimension for this table
+        DimMgt.SaveDefaultDim(
+            Database::"Seminar Registration Header",
+            "No.",    // PK of Seminar Registration Header
+            FieldNumber,
+            ShortcutDimCode
+        );
     end;
 
     var
