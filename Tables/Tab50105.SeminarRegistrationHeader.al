@@ -309,6 +309,11 @@ table 50105 "Seminar Registration Header"
             CaptionClass = '1,2,1';
             TableRelation = "Dimension Value".Code
                 WHERE("Global Dimension No." = CONST(1));
+
+            trigger OnValidate()
+            begin
+                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+            end;
         }
 
         field(31; "Shortcut Dimension 2 Code"; Code[20])
@@ -317,6 +322,11 @@ table 50105 "Seminar Registration Header"
             CaptionClass = '1,2,2';
             TableRelation = "Dimension Value".Code
                 WHERE("Global Dimension No." = CONST(2));
+
+            trigger OnValidate()
+            begin
+                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+            end;
         }
 
     }
@@ -368,21 +378,25 @@ table 50105 "Seminar Registration Header"
         exit(true);
     end;
 
-    procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         DimMgt: Codeunit DimensionManagement;
     begin
         // Validate the Dimension Value Code entered
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
 
-        // Save Default Dimension for this table
-        DimMgt.SaveDefaultDim(
-            Database::"Seminar Registration Header",
-            "No.",    // PK of Seminar Registration Header
-            FieldNumber,
-            ShortcutDimCode
-        );
+        // Only save if No. is assigned (record exists in header)
+        if "No." <> '' then begin
+            DimMgt.SaveDefaultDim(
+                Database::"Seminar Registration Header",
+                "No.",
+                FieldNumber,
+                ShortcutDimCode
+            );
+        end;
     end;
+
+
 
     var
         SemSetUpRec: Record "Seminar SetUp";
@@ -390,6 +404,7 @@ table 50105 "Seminar Registration Header"
         SemLine: Record "Seminar Registration Line";
         SemCharge: Record "Seminar Charge";
         SemComment: Record "Seminar Comment Line";
+        DimMgt: Codeunit DimensionManagement;
 
     trigger OnInsert()
 
