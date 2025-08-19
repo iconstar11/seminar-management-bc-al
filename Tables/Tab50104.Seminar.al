@@ -215,6 +215,19 @@ table 50104 Seminar
         exit(false); // User cancelled or no series selected
     end;
 
+    procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        // Validate dimension value
+        DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
+
+        // Save as default dimension for Seminar
+        DimMgt.SaveDefaultDim(Database::Seminar, "No.", FieldNumber, ShortcutDimCode);
+
+        Modify(true);
+    end;
+
     trigger OnInsert()
     begin
         // Auto-assign a Seminar No. if it's empty
