@@ -211,7 +211,7 @@ table 50107 "Seminar Registration Line"
         // Only save if No. is assigned (record exists in header)
         if "Document No." <> '' then begin
             DimMgt.SaveDefaultDim(
-                Database::"Seminar Registration Header",
+                Database::"Seminar Registration Line",
                 "Document No.",
                 FieldNumber,
                 ShortcutDimCode
@@ -219,6 +219,22 @@ table 50107 "Seminar Registration Line"
         end;
     end;
 
+    local procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        // Let the user pick a Dimension Value
+        DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
+    end;
+
+    // Simplified ShowShortcutDimCode
+    local procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        // Just show dimensions through standard function
+        // DimMgt.ShowDimensions(ShortcutDimCode);
+    end;
 
     trigger OnInsert()
     begin
