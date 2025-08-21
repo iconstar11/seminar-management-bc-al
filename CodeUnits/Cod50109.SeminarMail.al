@@ -67,4 +67,19 @@ codeunit 50109 SeminarMail
         SemRegLine.Modify(true);
     end;
 
+    procedure SendAllConfirmations(var SemRegHeader: Record "Seminar Registration Header")
+    var
+        SemRegLine: Record "Seminar Registration Line";
+    begin
+        // Link lines to header via Document No.
+        SemRegLine.SetRange("Document No.", SemRegHeader."No.");
+        if SemRegLine.FindSet() then
+            repeat
+                // Call our existing procedure for each line
+                NewConfirmationMessage(SemRegLine);
+            until SemRegLine.Next() = 0;
+    end;
+
+
+
 }
