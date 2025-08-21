@@ -236,14 +236,48 @@ table 50107 "Seminar Registration Line"
         // DimMgt.ShowDimensions(ShortcutDimCode);
     end;
 
+    procedure ShowDimensions()
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        if "Document No." = '' then
+            Error('Enter Document No. first.');
+        if "Line No." = 0 then
+            Error('Enter Line No. first.');
+
+        // Opens the standard "Edit Dimension Set Entries" dialog for this record
+        // "Dimension Set ID" := DimMgt.EditDimensionSet2("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+
     trigger OnInsert()
+    var
+        DimMgt: Codeunit DimensionManagement;
     begin
         GetSemRegHeader();
 
         "Register Date" := WorkDate;
         "Seminar Price" := SemHeader."Seminar Price";
         CalcAmount();
+
+        // "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(
+        //     "Dimension Set ID",
+        //     DimMgt.GetDefaultDimID(DATABASE::"Seminar Registration Header", "Document No.")
+        // );
     end;
+
+    // trigger OnInsert()
+    // var
+    //     DimMgt: Codeunit DimensionManagement;
+    // begin
+    //     // Merge defaults from header and/or other sources into this line
+    //     "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(
+    //         "Dimension Set ID",
+    //         DimMgt.GetDefaultDimID(DATABASE::"Seminar Registration Header", "Document No.")
+    //     );
+    // end;
+
+    // No explicit delete needed; Dimension Set ID is a shared key, BC keeps integrity.
+
 
     trigger OnDelete()
     begin

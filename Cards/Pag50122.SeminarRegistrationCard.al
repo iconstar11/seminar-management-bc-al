@@ -184,6 +184,20 @@ page 50122 "Seminar Registration Card"
                         PrintCU.PrintSeminarRegistrationHeader(SemRegHeader);
                     end;
                 }
+                action(SendEmailConfirmations)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Send E-mail Confirmations';
+                    Image = Email;
+                    trigger OnAction()
+                    var
+                        SeminarMail: Codeunit SeminarMail;
+                        RecHeader: Record "Seminar Registration Header";
+                    begin
+                        RecHeader.Get(Rec."No."); // get current header
+                        SeminarMail.SendAllConfirmations(RecHeader);
+                    end;
+                }
             }
         }
     }
