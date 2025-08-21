@@ -52,7 +52,8 @@ codeunit 50104 "Seminar-Post"
         // --- System fields ---
         PostedSemRegHeader."Posting Date" := Today;
         PostedSemRegHeader."Document Date" := WorkDate();
-        PostedSemRegHeader."User ID" := UserId;
+        PostedSemRegHeader."User ID" := CopyStr(UserId, 1, MaxStrLen(PostedSemRegHeader."User ID"));
+
         PostedSemRegHeader."Source Code" := 'SEMJNL';
 
         PostedSemRegHeader.Insert(true);
