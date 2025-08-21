@@ -5,6 +5,7 @@ report 50101 "Sem. Reg.-XML Participant List"
 {
     Caption = 'Sem. Reg.-XML Participant List';
     ProcessingOnly = true;
+    UsageCategory = ReportsAndAnalysis;
 
     dataset
     {
