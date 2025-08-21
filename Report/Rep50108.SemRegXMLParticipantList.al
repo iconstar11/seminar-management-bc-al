@@ -1,7 +1,7 @@
 namespace seminarmanagementbcal.seminarmanagementbcal;
 using System.Utilities;
 
-report 50101 "Sem. Reg.-XML Participant List"
+report 50108 "Sem. Reg.-XML Participant List"
 {
     Caption = 'Sem. Reg.-XML Participant List';
     ProcessingOnly = true;

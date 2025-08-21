@@ -80,7 +80,7 @@ page 50130 "Role Center"
                     action("Sales Invoice")
                     {
                         Caption = 'Sales Invoice';
-                        RunObject = page "Sales Invoice";
+                        RunObject = page "Sales Invoice List";
                         ApplicationArea = all;
                     }
                     group(Reports)
@@ -96,13 +96,13 @@ page 50130 "Role Center"
                         action("Posted Registrations")
                         {
                             Caption = 'Posted Registration';
-                            RunObject = page "Posted Seminar Reg.Listpart";
+                            RunObject = page "Posted Seminar Reg. List";
                             ApplicationArea = All;
                         }
                         action("Posted Sales Invoice")
                         {
                             Caption = 'Posted Sales Invoice';
-                            RunObject = page "Posted Sales Invoice";
+                            RunObject = page "Posted Sales Invoices";
                             ApplicationArea = All;
                         }
                         action(Registers)
@@ -115,6 +115,12 @@ page 50130 "Role Center"
                         {
                             Caption = 'Navigate';
                             RunObject = page Navigate;
+                            ApplicationArea = All;
+                        }
+                        action(PostedCharges)
+                        {
+                            Caption = 'Posted Seminar Charges';
+                            RunObject = page "Posted Seminar Charges List";
                             ApplicationArea = All;
                         }
 

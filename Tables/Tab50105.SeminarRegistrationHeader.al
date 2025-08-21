@@ -65,14 +65,14 @@ table 50105 "Seminar Registration Header"
 
                     // === New Dimension Handling ===
                     // Rebuild Dimension Set ID based on Seminar, Instructor, Room, Job
-                    "Dimension Set ID" :=
-                        DimMgt.GetCombinedDimensionSetID(
-        "Dimension Set ID",   // existing dimension set
-                              TableID,              // array of related tables
-                              No,                   // array of related record IDs
-        "Shortcut Dimension 1 Code",  // pass current global dim1 value
-        "Shortcut Dimension 2 Code"   // pass current global dim2 value
-    );
+                    // "Dimension Set ID" :=
+                    //     DimMgt.GetCombinedDimensionSetID(
+                    //         "Dimension Set ID",// existing dimension set
+                    //         TableID,              // array of related tables
+                    //         No,                   // array of related record IDs
+                    //         "Shortcut Dimension 1 Code",  // pass current global dim1 value
+                    //         "Shortcut Dimension 2 Code"   // pass current global dim2 value
+                    //     );
                 end;
             end;
 
