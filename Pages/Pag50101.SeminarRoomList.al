@@ -6,6 +6,7 @@ page 50101 "Seminar Room List"
 {
     ApplicationArea = All;
     Caption = 'Seminar Room List';
+    UsageCategory = Lists;
     PageType = List;
     SourceTable = "Seminar Room";
     Editable = false;

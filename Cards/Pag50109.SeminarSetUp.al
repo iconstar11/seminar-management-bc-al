@@ -32,6 +32,26 @@ page 50109 "Seminar SetUp"
                 {
                     ToolTip = 'Specifies the value of the Seminar field.', Comment = '%';
                 }
+                field("Job Journal Template"; Rec."Job Journal Template")
+                {
+                    ToolTip = 'Specifies the value of the Job Journal Template field.', Comment = '%';
+                }
+
+                field("Job Journal Batch"; Rec."Job Journal Batch")
+                {
+                    ToolTip = 'Specifies the value of the Job Journal Batch field.', Comment = '%';
+                }
+
+                field("Job Source Code"; Rec."Job Source Code")
+                {
+                    ToolTip = 'Specifies the value of the Job Source Code field.', Comment = '%';
+                }
+
+                field("Default Job Task No."; Rec."Default Job Task No.")
+                {
+                    ToolTip = 'Specifies the value of the Default Job Task No. field.', Comment = '%';
+                }
+
             }
         }
     }

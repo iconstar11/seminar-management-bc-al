@@ -89,9 +89,9 @@ codeunit 50104 "Seminar-Post"
             JobJnlLine.Init();
             if SemRegHeader."Posting Date" = 0D then
                 Error('Posting Date must be filled in on the Seminar Registration before posting.');
-            JobJnlLine."Journal Template Name" := 'JOB';
-            JobJnlLine."Journal Batch Name" := 'DEFAULT';
-            JobJnlLine."Line No." := 10000;
+            // JobJnlLine."Journal Template Name" := 'JOB';
+            // JobJnlLine."Journal Batch Name" := 'DEFAULT';
+            // JobJnlLine."Line No." := 10000;
 
 
             JobJnlLine."Posting Date" := SemRegHeader."Posting Date";

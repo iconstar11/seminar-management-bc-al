@@ -29,6 +29,28 @@ table 50103 "Seminar SetUp"
             Caption = 'Seminar';
             TableRelation = "Source Code Setup";
         }
+
+        field(6; "Job Journal Template"; Code[10])
+        {
+            Caption = 'Job Journal Template';
+            TableRelation = "Job Journal Template".Name;
+        }
+        field(7; "Job Journal Batch"; Code[10])
+        {
+            Caption = 'Job Journal Batch';
+            TableRelation = "Job Journal Batch".Name
+                where("Journal Template Name" = field("Job Journal Template"));
+        }
+        field(8; "Job Source Code"; Code[10])
+        {
+            Caption = 'Job Source Code';
+            TableRelation = "Source Code";
+        }
+        field(9; "Default Job Task No."; Code[20])
+        {
+            Caption = 'Default Job Task No.';
+            TableRelation = "Job Task"."Job Task No.";
+        }
     }
     keys
     {

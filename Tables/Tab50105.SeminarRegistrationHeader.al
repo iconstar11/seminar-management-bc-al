@@ -122,38 +122,29 @@ table 50105 "Seminar Registration Header"
         field(10; "Room Code"; Code[20])
         {
             Caption = 'Room Code';
+            TableRelation = "Seminar Room";
 
             trigger OnValidate()
             var
-                Room: Record "Seminar Room";
+                RecRoom: Record "Seminar Room";
             begin
-                if "Room Code" = '' then begin
-                    "Room Name" := '';
-                    "Room Address" := '';
-                    "Room Address2" := '';
-                    "Room Post Code" := '';
-                    "Room City" := '';
-                    "Room Phone No." := '';
-                end else begin
-                    if Room.Get("Room Code") then begin
-                        "Room Name" := Room.Name;
-                        "Room Address" := Room.Address;
-                        "Room Address2" := Room."Address 2";
-                        "Room Post Code" := Room."Post Code";
-                        "Room City" := Room.City;
-                        "Room Phone No." := Room."Phone No.";
+                RecRoom.Reset();
+                if RecRoom.get("Room Code") then
+                    "Room Name" := RecRoom.Name;
+                "Room Address" := RecRoom.Address;
+                "Room Address2" := RecRoom."Address 2";
+                "Room Post Code" := RecRoom."Post Code";
+                "Room City" := RecRoom.City;
+                "Room Phone No." := RecRoom."Phone No.";
 
-                        if Room."Maximum Participants " < "Maximum Participants" then
-                            if Confirm('The room capacity (%1) is less than current Maximum Participants (%2).\Do you want to reduce the Maximum Participants to fit the room?', false, Room."Maximum Participants ", "Maximum Participants") then
-                                "Maximum Participants" := Room."Maximum Participants ";
-                    end;
-                end;
             end;
+
+
         }
         field(11; "Room Name"; Text[30])
         {
             Caption = 'Room Name';
-            TableRelation = "Seminar Room";
+            Editable = false;
         }
         field(12; "Room Address"; Text[30])
         {
