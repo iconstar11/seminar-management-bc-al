@@ -18,20 +18,22 @@ table 50102 Instructor
             Caption = 'Internal/External';
             OptionMembers = internal,external;
         }
-        field(4; "Resource No. "; Code[20])
+        field(4; "Resource No."; Code[20])
         {
-            Caption = 'Resource No. ';
+            Caption = 'Resource No.';
             TableRelation = Resource;
 
             trigger OnValidate()
-
             var
-                getName: Record Resource;
+                Res: Record Resource;
             begin
-                getName.Reset();
-                if getName.Get("Resource No. ") and (Name = '') then begin
-                    Name := getName.Name;
+                if Res.Get("Resource No.") then begin
+                    if Name = '' then
+                        Name := Res.Name;
 
+                    // Optional: warn if posting groups are missing
+                    if Res."Gen. Prod. Posting Group" = '' then
+                        Message('Warning: Resource %1 has no Gen. Prod. Posting Group. Posting will fail until this is set up.', Res."No.");
                 end;
             end;
         }
@@ -98,16 +100,16 @@ table 50102 Instructor
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.UpdateDefaultDim(Database::"Seminar Room", Code, "Global Dimension 1 Code", "Global Dimension 2 Code");
+        DimMgt.UpdateDefaultDim(Database::Instructor, Code, "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
-
 
     trigger OnDelete()
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.DeleteDefaultDim(Database::"Seminar Room", Code);
+        DimMgt.DeleteDefaultDim(Database::Instructor, Code);
     end;
+
 
 
 

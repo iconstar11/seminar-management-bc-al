@@ -16,7 +16,11 @@ codeunit 50104 "Seminar-Post"
         NewNo: Code[20];
         LineNo: Integer;
         JobJnlLine: Record "Job Journal Line";
+        JobJnlLine2: Record "Job Journal Line";
         JobJnlPost: Codeunit "Job Jnl.-Post Line";
+        SemSetup: Record "Seminar SetUp";
+        ResourceRec: Record Resource;
+        InstructorRec: Record Instructor;
     begin
         if not Confirm('Do you want to post this seminar registration?', false) then
             exit;
@@ -48,16 +52,12 @@ codeunit 50104 "Seminar-Post"
         PostedSemRegHeader."Job No." := SemRegHeader."Job No.";
         PostedSemRegHeader."Reason Code" := SemRegHeader."Reason Code";
         PostedSemRegHeader."No. Series" := SemRegHeader."No. Series";
-        // PostedSemRegHeader."Registration No. Series" := SemRegHeader."Registration No. Series";
-        // PostedSemRegHeader."Registration No." := SemRegHeader."Registration No.";
 
         // --- System fields ---
         PostedSemRegHeader."Posting Date" := Today;
         PostedSemRegHeader."Document Date" := WorkDate();
         PostedSemRegHeader."User ID" := CopyStr(UserId, 1, MaxStrLen(PostedSemRegHeader."User ID"));
-
         PostedSemRegHeader."Source Code" := 'SEMJNL';
-
         PostedSemRegHeader.Insert(true);
 
         // === Copy Lines ===
@@ -66,7 +66,6 @@ codeunit 50104 "Seminar-Post"
             LineNo := 10000;
             repeat
                 PostedSemRegLine.Init();
-
                 PostedSemRegLine."Document No." := PostedSemRegHeader."No.";
                 PostedSemRegLine."Line No." := LineNo;
                 PostedSemRegLine."Bill-to Customer No." := SemRegLine."Bill-to Customer No.";
@@ -81,36 +80,58 @@ codeunit 50104 "Seminar-Post"
                 PostedSemRegLine."Line Discount Amount" := SemRegLine."Line Discount Amount";
                 PostedSemRegLine.Amount := SemRegLine.Amount;
                 PostedSemRegLine.Registered := SemRegLine.Registered;
-
                 PostedSemRegLine.Insert(true);
+
                 LineNo += 10000;
             until SemRegLine.Next() = 0;
 
-            JobJnlLine.Init();
-            if SemRegHeader."Posting Date" = 0D then
-                Error('Posting Date must be filled in on the Seminar Registration before posting.');
-            // JobJnlLine."Journal Template Name" := 'JOB';
-            // JobJnlLine."Journal Batch Name" := 'DEFAULT';
-            // JobJnlLine."Line No." := 10000;
+            // === Create Job Journal Line ===
+            // JobJnlLine.Init();
 
+            // if SemRegHeader."Posting Date" = 0D then
+            //     Error('Posting Date must be filled in on the Seminar Registration before posting.');
 
-            JobJnlLine."Posting Date" := SemRegHeader."Posting Date";
-            JobJnlLine."Document Date" := SemRegHeader."Posting Date";
-            JobJnlLine."Document No." := PostedSemRegHeader."No.";
-            JobJnlLine."Job No." := SemRegHeader."Job No.";
-            JobJnlLine."Job Task No." := '1000'; // <-- Required, make sure task exists!
-            JobJnlLine."Type" := JobJnlLine.Type::Resource;
-            JobJnlLine."No." := SemRegHeader."Instructor Code";
-            JobJnlLine.Quantity := 1;
-            JobJnlLine."Unit Price" := SemRegHeader."Seminar Price";
-            JobJnlLine."Line Type" := JobJnlLine."Line Type"::Billable;
-            JobJnlLine."Source Code" := 'SEMJNL';
+            // SemSetup.Get(); // Seminar Setup
 
-            JobJnlLine.Insert(true);
+            // // Use setup values instead of hardcoded ones
+            // JobJnlLine."Journal Template Name" := SemSetup."Job Journal Template";
+            // JobJnlLine."Journal Batch Name" := SemSetup."Job Journal Batch";
+            // if JobJnlLine2.FindLast() then
+            //     JobJnlLine."Line No." := JobJnlLine2."Line No." + 10000
+            // else
+            //     JobJnlLine."Line No." := 10000;
 
-            // Post it
-            JobJnlPost.Run(JobJnlLine);
+            // JobJnlLine."Posting Date" := SemRegHeader."Posting Date";
+            // JobJnlLine."Document Date" := SemRegHeader."Posting Date";
+            // JobJnlLine."Document No." := PostedSemRegHeader."No.";
+            // JobJnlLine."Job No." := SemRegHeader."Job No.";
+            // JobJnlLine."Job Task No." := SemSetup."Default Job Task No.";
+            // JobJnlLine."Type" := JobJnlLine.Type::Resource;
 
+            // // === Get Instructor Resource ===
+            // if not InstructorRec.Get(SemRegHeader."Instructor Code") then
+            //     Error('Instructor %1 does not exist.', SemRegHeader."Instructor Code");
+
+            // if InstructorRec."Resource No." = '' then
+            //     Error('Instructor %1 has no Resource assigned.', InstructorRec.Code);
+
+            // if not ResourceRec.Get(InstructorRec."Resource No.") then
+            //     Error('Resource %1 linked to Instructor %2 does not exist.', InstructorRec."Resource No.", InstructorRec.Code);
+
+            // if ResourceRec."Gen. Prod. Posting Group" = '' then
+            //     Error('Resource %1 (%2) must have a Gen. Prod. Posting Group before posting.',
+            //           ResourceRec."No.", ResourceRec.Name);
+
+            // JobJnlLine."No." := ResourceRec."No.";
+            // JobJnlLine.Quantity := 1;
+            // JobJnlLine."Unit Price" := SemRegHeader."Seminar Price";
+            // JobJnlLine."Line Type" := JobJnlLine."Line Type"::Billable;
+            // JobJnlLine."Source Code" := SemSetup."Job Source Code";
+
+            // JobJnlLine.Insert(true);
+
+            // // === Post Job Journal Line ===
+            // JobJnlPost.Run(JobJnlLine);
         end;
 
         // === Cleanup: remove unposted records ===
@@ -122,6 +143,4 @@ codeunit 50104 "Seminar-Post"
         Message('Seminar Registration %1 has been posted as %2',
             SemRegHeader."No.", PostedSemRegHeader."No.");
     end;
-
-
 }

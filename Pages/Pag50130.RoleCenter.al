@@ -63,8 +63,15 @@ page 50130 "Role Center"
                         {
                             Caption = 'Periodic Activities';
                             ApplicationArea = all;
-                            RunObject = report "Sem. Reg.-XML Participant List";
+                            RunObject = report "Seminar Invoices";
+                            Image = Invoice;
 
+                        }
+                        action(ParnerMenuSuiteXmlPort)
+                        {
+                            Caption = 'PMenuSuite Xmlport';
+                            ApplicationArea = all;
+                            RunObject = report "Sem. Reg.-XML Participant List";
                         }
                     }
                 }

@@ -27,7 +27,7 @@ table 50103 "Seminar SetUp"
         field(5; Seminar; Code[10])
         {
             Caption = 'Seminar';
-            TableRelation = "Source Code Setup";
+            TableRelation = "Source Code";
         }
 
         field(6; "Job Journal Template"; Code[10])

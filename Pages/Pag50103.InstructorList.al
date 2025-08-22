@@ -4,6 +4,7 @@ using Microsoft.Finance.Dimension;
 page 50103 "Instructor List"
 {
     ApplicationArea = All;
+    UsageCategory = Lists;
     Caption = 'Instructor List';
     PageType = List;
     SourceTable = Instructor;
@@ -33,7 +34,7 @@ page 50103 "Instructor List"
                 {
                     ToolTip = 'Specifies the value of the Contact No. field.', Comment = '%';
                 }
-                field("Resource No. "; Rec."Resource No. ")
+                field("Resource No."; Rec."Resource No.")
                 {
                     ToolTip = 'Specifies the value of the Resource No. field.', Comment = '%';
                 }

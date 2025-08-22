@@ -249,21 +249,27 @@ table 50107 "Seminar Registration Line"
         // "Dimension Set ID" := DimMgt.EditDimensionSet2("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
+
     trigger OnInsert()
     var
-        DimMgt: Codeunit DimensionManagement;
+        RegLine: Record "Seminar Registration Line";
     begin
         GetSemRegHeader();
+
+        if "Line No." = 0 then begin
+            RegLine.Reset();
+            RegLine.SetRange("Document No.", "Document No.");
+            if RegLine.FindLast() then
+                "Line No." := RegLine."Line No." + 10000
+            else
+                "Line No." := 10000;
+        end;
 
         "Register Date" := WorkDate;
         "Seminar Price" := SemHeader."Seminar Price";
         CalcAmount();
-
-        // "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(
-        //     "Dimension Set ID",
-        //     DimMgt.GetDefaultDimID(DATABASE::"Seminar Registration Header", "Document No.")
-        // );
     end;
+
 
     // trigger OnInsert()
     // var

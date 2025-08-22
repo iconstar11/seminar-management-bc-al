@@ -34,7 +34,7 @@ codeunit 50103 "Posted Seminar Reg.List"
         SemRoom.Get(SemRegHeader."Room Code");
         SemRoom.TestField("Resource No.");
         Instr.Get(SemRegHeader."Instructor Code");
-        Instr.TestField("Resource No. ");
+        Instr.TestField("Resource No.");
 
         // Check if lines exist
         SemRegLine.Reset();
@@ -212,7 +212,7 @@ codeunit 50103 "Posted Seminar Reg.List"
         // Get Customer, Instructor, and Resource
         Cust.Get(PstdSemRegLine."Bill-to Customer No.");
         Instr.Get(PstdSemRegHeader."Instructor Code");
-        Res.Get(Instr."Resource No. ");
+        Res.Get(Instr."Resource No.");
 
         // Initialize Job Journal Line
         JobJnlLine.Init();
