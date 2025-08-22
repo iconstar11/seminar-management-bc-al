@@ -15,6 +15,8 @@ codeunit 50104 "Seminar-Post"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         NewNo: Code[20];
         LineNo: Integer;
+        JobJnlLine: Record "Job Journal Line";
+        JobJnlPost: Codeunit "Job Jnl.-Post Line";
     begin
         if not Confirm('Do you want to post this seminar registration?', false) then
             exit;
@@ -83,6 +85,32 @@ codeunit 50104 "Seminar-Post"
                 PostedSemRegLine.Insert(true);
                 LineNo += 10000;
             until SemRegLine.Next() = 0;
+
+            JobJnlLine.Init();
+            if SemRegHeader."Posting Date" = 0D then
+                Error('Posting Date must be filled in on the Seminar Registration before posting.');
+            JobJnlLine."Journal Template Name" := 'JOB';
+            JobJnlLine."Journal Batch Name" := 'DEFAULT';
+            JobJnlLine."Line No." := 10000;
+
+
+            JobJnlLine."Posting Date" := SemRegHeader."Posting Date";
+            JobJnlLine."Document Date" := SemRegHeader."Posting Date";
+            JobJnlLine."Document No." := PostedSemRegHeader."No.";
+            JobJnlLine."Job No." := SemRegHeader."Job No.";
+            JobJnlLine."Job Task No." := '1000'; // <-- Required, make sure task exists!
+            JobJnlLine."Type" := JobJnlLine.Type::Resource;
+            JobJnlLine."No." := SemRegHeader."Instructor Code";
+            JobJnlLine.Quantity := 1;
+            JobJnlLine."Unit Price" := SemRegHeader."Seminar Price";
+            JobJnlLine."Line Type" := JobJnlLine."Line Type"::Billable;
+            JobJnlLine."Source Code" := 'SEMJNL';
+
+            JobJnlLine.Insert(true);
+
+            // Post it
+            JobJnlPost.Run(JobJnlLine);
+
         end;
 
         // === Cleanup: remove unposted records ===
@@ -94,4 +122,6 @@ codeunit 50104 "Seminar-Post"
         Message('Seminar Registration %1 has been posted as %2',
             SemRegHeader."No.", PostedSemRegHeader."No.");
     end;
+
+
 }
