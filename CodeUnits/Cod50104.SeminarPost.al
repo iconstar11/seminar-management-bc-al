@@ -85,6 +85,83 @@ codeunit 50104 "Seminar-Post"
     local procedure PostJobJnlLine(ChargeType: Option Participant,Charge): Integer
     begin
 
+        // Get Instructor 
+        if not Instr.Get(SemRegHeader."Instructor Code") then
+            Error('Instructor %1 does not exist.', SemRegHeader."Instructor Code");
+
+        if Instr."Resource No." = '' then
+            Error('Instructor %1 has no Resource assigned.', Instr.Code);
+
+        // Get Resource linked to Instructor
+        if not Res.Get(Instr."Resource No.") then
+            Error('Resource %1 linked to Instructor %2 does not exist.', Instr."Resource No.", Instr.Code);
+
+        // Get Customer from the current Seminar Registration Line 
+        if SemRegLine."Bill-to Customer No." = '' then
+            Error('Bill-to Customer No. must be filled for Participant %1.', SemRegLine."Participant Name");
+
+        if not Cust.Get(SemRegLine."Bill-to Customer No.") then
+            Error('Customer %1 does not exist.', SemRegLine."Bill-to Customer No.");
+
+        // ### Create and initialize Job Journal Line ###
+        JobJnlLine.Init();
+        JobJnlLine."Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
+        JobJnlLine."Entry Type" := JobJnlLine."Entry Type"::Usage;
+        JobJnlLine."Document No." := PstdSemRegHeader."No.";
+        JobJnlLine."Seminar Registration No." := PstdSemRegHeader."No.";
+        JobJnlLine."Source Code" := SrcCode;
+        JobJnlLine."Source Currency Total Cost" := SemRegLine."Seminar Price";
+
+        // ### ChargeType = Participant 
+        if ChargeType = ChargeType::Participant
+        then begin
+            JobJnlLine.Description := SemRegLine."Participant Name";
+            JobJnlLine."No." := Instr."Resource No.";
+            JobJnlLine.Chargeable := SemRegLine."To Invoice";
+            JobJnlLine.Quantity := 1;
+            JobJnlLine."Unit Cost" := 0;
+            JobJnlLine."Total Cost" := 0;
+            JobJnlLine."Unit Price" := SemRegLine.Amount;
+            JobJnlLine."Total Price" := SemRegLine.Amount;
+        end;
+
+        // ### ChargeType = Participant 
+        if ChargeType = ChargeType::Charge
+        then begin
+            JobJnlLine.Description := SemCharge.Description;
+            case SemCharge.Type of
+
+                // ##If Type = Resource
+                SemCharge.Type::Resource:
+                    begin
+                        JobJnlLine.Type := JobJnlLine.Type::Resource;
+                        JobJnlLine."Unit of Measure Code" := SemCharge."Unit Of Measure Code";
+                        JobJnlLine."Qty. per Unit of Measure" := SemCharge."Qty. per Unit of Measure";
+                    end;
+
+                // ## If Type = Gl Account
+                SemCharge.Type::"G/L Account":
+                    begin
+                        JobJnlLine.Type := JobJnlLine.Type::"G/L Account";
+                        JobJnlLine.Chargeable := SemCharge."To Invoice";
+                        JobJnlLine."Quantity (Base)" := 1;
+                        JobJnlLine."Unit Cost" := 0;
+                        JobJnlLine."Total Cost" := 0;
+                        JobJnlLine."No." := SemCharge."No.";
+                        JobJnlLine.Quantity := SemCharge.Quantity;
+                        JobJnlLine."Unit Price" := SemCharge."Unit Price";
+                        JobJnlLine."Total Price" := SemCharge."Total Price";
+                    end;
+
+            end;
+        end;
+        JobJnlLine.Insert(true);
+        JobJnlPostLine.RunWithCheck(JobJnlLine);
+
+        if JobLedgEntry.FindLast() then
+            exit(JobLedgEntry."Entry No.")
+        else
+            exit(0);
     end;
 
     local procedure PostSeminarJnlLine(ChargeType: Option Instructor,Room,Participant,Charge): Integer
