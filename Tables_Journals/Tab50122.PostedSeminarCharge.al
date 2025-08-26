@@ -5,7 +5,7 @@ table 50122 "Posted Seminar Charge"
 
     fields
     {
-        field(1; "Seminar Registration No."; Code[10])
+        field(1; "Seminar Registration No."; Code[20])
         {
             Caption = 'Seminar Registration No.';
             TableRelation = "Seminar Registration Header";
@@ -22,7 +22,7 @@ table 50122 "Posted Seminar Charge"
         field(4; "Type"; Option)
         {
             Caption = 'Type';
-            OptionMembers = "Resource","G/L Account";
+            OptionMembers = Resource,"G/L Account";
         }
         field(5; "No."; Code[20])
         {

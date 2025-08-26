@@ -36,11 +36,8 @@ table 50106 "Seminar Charge"
         field(4; Type; Option)
         {
             Caption = 'Type';
-            OptionMembers = ,Resource,"G/L Account";
-            trigger OnValidate()
-            begin
-                Description := ' ';
-            end;
+            OptionMembers = Resource,"G/L Account";
+
         }
         field(5; "No."; Code[20])
         {
@@ -163,11 +160,11 @@ table 50106 "Seminar Charge"
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
         }
-        field(15; "Qty. Per Unit of Measure"; Decimal)
+        field(15; "Qty. per Unit of Measure"; Decimal)
         {
-            Caption = 'Qty. Per Unit of Measure';
+            Caption = 'Qty. per Unit of Measure';
         }
-        field(16; Registred; Boolean)
+        field(16; Registered; Boolean)
         {
             Caption = 'Registred';
             Editable = false;
@@ -199,7 +196,7 @@ table 50106 "Seminar Charge"
 
     trigger OnDelete()
     begin
-        TestField(Registred, false);
+        TestField(Registered, false);
     end;
 
     local procedure CheckGLAcc(GLAcc: Record "G/L Account")
