@@ -8,7 +8,8 @@ table 50108 "Seminar Comment Line"
         field(1; "Document Type"; Option)
         {
             Caption = 'Document Type';
-            OptionMembers = ,hi;
+            OptionMembers = "Seminar Registration","Posted Seminar Registration";
+            OptionCaption = 'Seminar Registration,Posted Seminar Registration';
         }
         field(2; "No."; Code[20])
         {
@@ -24,7 +25,7 @@ table 50108 "Seminar Comment Line"
         }
         field(5; Code; Code[10])
         {
-            Caption = 'Code ';
+            Caption = 'Code';
         }
         field(6; Comment; Text[80])
         {
