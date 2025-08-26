@@ -21,6 +21,7 @@ codeunit 50104 "Seminar-Post"
         SemSetup: Record "Seminar SetUp";
         ResourceRec: Record Resource;
         InstructorRec: Record Instructor;
+        ResourceNo: Code[20];
     begin
         if not Confirm('Do you want to post this seminar registration?', false) then
             exit;
@@ -86,29 +87,32 @@ codeunit 50104 "Seminar-Post"
             until SemRegLine.Next() = 0;
 
             // === Create Job Journal Line ===
-            // JobJnlLine.Init();
+            JobJnlLine.Init();
 
-            // if SemRegHeader."Posting Date" = 0D then
-            //     Error('Posting Date must be filled in on the Seminar Registration before posting.');
+            if SemRegHeader."Posting Date" = 0D then
+                Error('Posting Date must be filled in on the Seminar Registration before posting.');
 
-            // SemSetup.Get(); // Seminar Setup
+            SemSetup.Get(); // Seminar Setup
 
-            // // Use setup values instead of hardcoded ones
-            // JobJnlLine."Journal Template Name" := SemSetup."Job Journal Template";
-            // JobJnlLine."Journal Batch Name" := SemSetup."Job Journal Batch";
-            // if JobJnlLine2.FindLast() then
-            //     JobJnlLine."Line No." := JobJnlLine2."Line No." + 10000
-            // else
-            //     JobJnlLine."Line No." := 10000;
+            // Use setup values instead of hardcoded ones
+            JobJnlLine."Journal Template Name" := SemSetup."Job Journal Template";
+            JobJnlLine."Journal Batch Name" := SemSetup."Job Journal Batch";
+            JobJnlLine2.SetRange("Journal Template Name", SemSetup."Job Journal Template");
+            JobJnlLine2.SetRange("Journal Batch Name", SemSetup."Job Journal Batch");
 
-            // JobJnlLine."Posting Date" := SemRegHeader."Posting Date";
-            // JobJnlLine."Document Date" := SemRegHeader."Posting Date";
-            // JobJnlLine."Document No." := PostedSemRegHeader."No.";
-            // JobJnlLine."Job No." := SemRegHeader."Job No.";
-            // JobJnlLine."Job Task No." := SemSetup."Default Job Task No.";
-            // JobJnlLine."Type" := JobJnlLine.Type::Resource;
+            if JobJnlLine2.FindLast() then
+                JobJnlLine."Line No." := JobJnlLine2."Line No." + 10000
+            else
+                JobJnlLine."Line No." := 10000;
 
-            // // === Get Instructor Resource ===
+            JobJnlLine."Posting Date" := SemRegHeader."Posting Date";
+            JobJnlLine."Document Date" := SemRegHeader."Posting Date";
+            JobJnlLine."Document No." := PostedSemRegHeader."No.";
+            JobJnlLine."Job No." := SemRegHeader."Job No.";
+            JobJnlLine."Job Task No." := SemSetup."Default Job Task No.";
+            JobJnlLine."Type" := JobJnlLine.Type::Resource;
+
+            // === Get Instructor Resource ===
             // if not InstructorRec.Get(SemRegHeader."Instructor Code") then
             //     Error('Instructor %1 does not exist.', SemRegHeader."Instructor Code");
 
@@ -116,22 +120,30 @@ codeunit 50104 "Seminar-Post"
             //     Error('Instructor %1 has no Resource assigned.', InstructorRec.Code);
 
             // if not ResourceRec.Get(InstructorRec."Resource No.") then
-            //     Error('Resource %1 linked to Instructor %2 does not exist.', InstructorRec."Resource No.", InstructorRec.Code);
+            //     Error('Resource %1 linked to Instructor %2 does not exist.',
+            //     InstructorRec."Resource No.", InstructorRec.Code);
 
             // if ResourceRec."Gen. Prod. Posting Group" = '' then
             //     Error('Resource %1 (%2) must have a Gen. Prod. Posting Group before posting.',
             //           ResourceRec."No.", ResourceRec.Name);
 
-            // JobJnlLine."No." := ResourceRec."No.";
-            // JobJnlLine.Quantity := 1;
-            // JobJnlLine."Unit Price" := SemRegHeader."Seminar Price";
-            // JobJnlLine."Line Type" := JobJnlLine."Line Type"::Billable;
-            // JobJnlLine."Source Code" := SemSetup."Job Source Code";
+            If InstructorRec.GET(SemRegHeader."Instructor Code")
+                THEN
+                ResourceNo := InstructorRec."Resource No.";
+            IF ResourceRec.GET(ResourceNo)
+                then
+                JobJnlLine."No." := ResourceRec."No.";
+            JobJnlLine.Quantity := 1;
+            JobJnlLine."Gen. Prod. Posting Group" := ResourceRec."Gen. Prod. Posting Group";
+            JobJnlLine."Unit Price" := ResourceRec."Unit Price";
+            JobJnlLine."Line Type" := JobJnlLine."Line Type"::Billable;
+            JobJnlLine."Source Code" := SemSetup."Job Source Code";
+            JobJnlLine."Unit of Measure Code" := ResourceRec."Base Unit of Measure";
 
-            // JobJnlLine.Insert(true);
+            JobJnlLine.Insert(true);
 
-            // // === Post Job Journal Line ===
-            // JobJnlPost.Run(JobJnlLine);
+            // === Post Job Journal Line ===
+            JobJnlPost.Run(JobJnlLine);
         end;
 
         // === Cleanup: remove unposted records ===

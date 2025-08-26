@@ -42,7 +42,7 @@ page 50130 "Role Center"
                     action(Contact)
                     {
                         Caption = 'Contact';
-                        RunObject = page "Contact Card";
+                        RunObject = page "Contact List";
                         ApplicationArea = all;
                     }
                     action(Instructor)
@@ -54,7 +54,7 @@ page 50130 "Role Center"
                     action(Seminar)
                     {
                         Caption = 'Seminars';
-                        RunObject = page "Seminar Card";
+                        RunObject = page "Seminar List";
                         ApplicationArea = all;
                     }
                     group("Periodic Activities")
@@ -196,15 +196,15 @@ page 50130 "Role Center"
             }
 
 
-            group("Seminar Reporting")
-            {
-                action(SeminarReportSelection)
-                {
-                    Caption = 'Report Selections';
-                    ApplicationArea = All;
-                    RunObject = Page "Seminar Report Selection List";
-                }
-            }
+            // group("Seminar Reporting")
+            // {
+            //     action(SeminarReportSelection)
+            //     {
+            //         Caption = 'Report Selections';
+            //         ApplicationArea = All;
+            //         RunObject = Page "Seminar Report Selection List";
+            //     }
+            // }
         }
     }
 }

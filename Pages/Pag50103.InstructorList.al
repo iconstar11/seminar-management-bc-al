@@ -8,6 +8,8 @@ page 50103 "Instructor List"
     Caption = 'Instructor List';
     PageType = List;
     SourceTable = Instructor;
+    Editable = false;
+    CardPageId = 50135;
 
     layout
     {
