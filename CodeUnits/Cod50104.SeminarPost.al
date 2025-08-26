@@ -48,12 +48,41 @@ codeunit 50104 "Seminar-Post"
         SemLedgEntryNo: Integer;
 
 
-    local procedure CopyCommentLines(FromDocumentType: Integer;
-    ToDocumentType: Integer;
-    FromNumber: Code[20];
-    ToNumber: Code[20])
-    var
+    local procedure CopyCommentLines(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
+    begin
+        SemCommentLine.Reset();
+        SemCommentLine.SetRange("Document Type", FromDocumentType);
+        SemCommentLine.SetRange("No.", FromNumber);
 
+        if SemCommentLine.FindSet() then begin
+            repeat
+                // Prepare the new record
+                SemCommentLine2.Init();
+                SemCommentLine2 := SemCommentLine;
+                SemCommentLine2."Document Type" := ToDocumentType;
+                SemCommentLine2."No." := ToNumber;
+                SemCommentLine2.Insert();
+            until SemCommentLine.Next() = 0;
+        end;
+
+    end;
+
+    local procedure CopyCharges(FromNumber: Code[20]; ToNumber: Code[20])
+    begin
+
+    end;
+
+    local procedure PostJobJnlLine(ChargeType: Option Participant,Charge): Integer
+    begin
+
+    end;
+
+    local procedure PostSeminarJnlLine(ChargeType: Option Instructor,Room,Participant,Charge): Integer
+    begin
+
+    end;
+
+    local procedure PostCharge()
     begin
 
     end;
