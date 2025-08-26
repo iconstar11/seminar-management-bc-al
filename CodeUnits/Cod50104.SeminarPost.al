@@ -166,8 +166,87 @@ codeunit 50104 "Seminar-Post"
 
     local procedure PostSeminarJnlLine(ChargeType: Option Instructor,Room,Participant,Charge): Integer
     begin
+        SemJnlLine.Init();
+
+        SemJnlLine."Document No." := PstdSemRegHeader."No.";
+        SemJnlLine."Seminar Registration No." := PstdSemRegHeader."No.";
+        SemJnlLine."Posting Date" := SemRegHeader."Posting Date";
+        SemJnlLine."Document Date" := SemRegHeader."Document Date";
+        SemJnlLine."Source Code" := SrcCode;
+
+
+        SemJnlLine."Unit Price" := 0;
+        SemJnlLine."Total Price" := 0;
+        SemJnlLine.Quantity := 0;
+
+
+        if ChargeType = ChargeType::Instructor
+        then begin
+            if not Instr.Get(SemRegHeader."Instructor Code") then
+                Error('Instructor %1 does not exist.', SemRegHeader."Instructor Code");
+            SemJnlLine.Description := Instr.Name;
+            SemJnlLine.Type := SemJnlLine.Type::Resource;
+            SemJnlLine.Chargeable := false;
+            SemJnlLine.Quantity := SemRegHeader.Duration;
+
+        end;
+
+        // --- Case: Room ---
+        if ChargeType = ChargeType::Room then begin
+            if not SemRoom.Get(SemRegHeader."Room Code") then
+                Error('Room %1 does not exist.', SemRegHeader."Room Code");
+
+            SemJnlLine.Description := SemRoom.Name;
+            SemJnlLine.Type := SemJnlLine.Type::Resource;
+            SemJnlLine.Chargeable := false;
+            SemJnlLine.Quantity := SemRegHeader.Duration;
+        end;
+
+
+        // --- Case: Participant ---
+        if ChargeType = ChargeType::Participant then begin
+            if SemRegLine."Bill-to Customer No." = '' then
+                Error('Bill-to Customer No. must be filled for participant %1.', SemRegLine."Participant Name");
+            if SemRegLine."Participant Contact No." = '' then
+                Error('Participant Contact No. must be filled for participant %1.', SemRegLine."Participant Name");
+
+            SemJnlLine."Bill-to Customer No." := SemRegLine."Bill-to Customer No.";
+            SemJnlLine."Participant Contact No." := SemRegLine."Participant Contact No.";
+            SemJnlLine."Participant Name" := SemRegLine."Participant Name";
+
+            SemJnlLine.Description := SemRegLine."Participant Name";
+            SemJnlLine.Type := SemJnlLine.Type::Resource;
+            SemJnlLine.Chargeable := SemRegLine."To Invoice";
+            SemJnlLine.Quantity := 1;
+
+            // Pricing from registration line
+            SemJnlLine."Unit Price" := SemRegLine.Amount;
+            SemJnlLine."Total Price" := SemRegLine.Amount;
+        end;
+
+        // --- Case: Charge ---
+        if ChargeType = ChargeType::Charge
+        then begin
+            SemJnlLine.Description := SemCharge.Description;
+            SemJnlLine."Bill-to Customer No." := SemCharge."Bill-to Customer No.";
+            SemJnlLine.Type := SemCharge.Type;
+            SemJnlLine.Quantity := SemCharge.Quantity;
+            SemJnlLine."Unit Price" := SemCharge."Unit Price";
+            SemJnlLine."Total Price" := SemCharge."Total Price";
+            SemJnlLine.Chargeable := SemCharge."To Invoice";
+        end;
+
+        // === Post the Seminar Journal Line ===
+        SemJnlPostLine.Run(SemJnlLine);
+
+        // === Return last Seminar Ledger Entry No. ===
+        if SemLedgEntry.FindLast() then
+            exit(SemLedgEntry."Entry No.")
+        else
+            exit(0);
 
     end;
+
 
     local procedure PostCharge()
     begin

@@ -32,9 +32,9 @@ table 50102 Instructor
                         Name := Res.Name;
 
                     // Copy posting setup fields
-                    "Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
-                    "VAT Prod. Posting Group" := Res."VAT Prod. Posting Group";
-                    "Base Unit of Measure" := Res."Base Unit of Measure";
+                    // "Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
+                    // "VAT Prod. Posting Group" := Res."VAT Prod. Posting Group";
+                    // "Base Unit of Measure" := Res."Base Unit of Measure";
 
                     // Optional warning if missing
                     if Res."Gen. Prod. Posting Group" = '' then
@@ -42,11 +42,12 @@ table 50102 Instructor
 
                     if Res."Base Unit of Measure" = '' then
                         Message('Warning: Resource %1 has no Base Unit of Measure. Posting will fail until this is set up.', Res."No.");
-                end else begin
-                    Clear("Gen. Prod. Posting Group");
-                    Clear("VAT Prod. Posting Group");
-                    Clear("Base Unit of Measure");
-                end;
+                end
+                // else begin
+                //     Clear("Gen. Prod. Posting Group");
+                //     Clear("VAT Prod. Posting Group");
+                //     Clear("Base Unit of Measure");
+                // end;
             end;
         }
         field(5; "Contact No."; Code[20])
@@ -81,21 +82,21 @@ table 50102 Instructor
                 ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
         }
-        field(8; "Gen. Prod. Posting Group"; Code[20])
-        {
-            Caption = 'Gen. Prod. Posting Group';
-            TableRelation = "Gen. Product Posting Group";
-        }
-        field(9; "VAT Prod. Posting Group"; Code[20])
-        {
-            Caption = 'VAT Prod. Posting Group';
-            TableRelation = "VAT Product Posting Group";
-        }
-        field(10; "Base Unit of Measure"; Code[10])
-        {
-            Caption = 'Base Unit of Measure';
-            TableRelation = Resource."Base Unit of Measure";
-        }
+        // field(8; "Gen. Prod. Posting Group"; Code[20])
+        // {
+        //     Caption = 'Gen. Prod. Posting Group';
+        //     TableRelation = "Gen. Product Posting Group";
+        // }
+        // field(9; "VAT Prod. Posting Group"; Code[20])
+        // {
+        //     Caption = 'VAT Prod. Posting Group';
+        //     TableRelation = "VAT Product Posting Group";
+        // }
+        // field(10; "Base Unit of Measure"; Code[10])
+        // {
+        //     Caption = 'Base Unit of Measure';
+        //     TableRelation = Resource."Base Unit of Measure";
+        // }
     }
 
     keys

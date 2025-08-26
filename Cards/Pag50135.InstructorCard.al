@@ -43,18 +43,18 @@ page 50135 "Instructor Card"
                 {
                     ToolTip = 'Specifies the value of the Global Dimension 2 Code field.', Comment = '%';
                 }
-                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
-                {
-                    ToolTip = 'Specifies the value of the Gen. Prod. Posting Group field.', Comment = '%';
-                }
-                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
-                {
-                    ToolTip = 'Specifies the value of the VAT Prod. Posting Group field.', Comment = '%';
-                }
-                field("Base Unit of Measure"; Rec."Base Unit of Measure")
-                {
+                // field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
+                // {
+                //     ToolTip = 'Specifies the value of the Gen. Prod. Posting Group field.', Comment = '%';
+                // }
+                // field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
+                // {
+                //     ToolTip = 'Specifies the value of the VAT Prod. Posting Group field.', Comment = '%';
+                // }
+                // field("Base Unit of Measure"; Rec."Base Unit of Measure")
+                // {
 
-                }
+                // }
             }
         }
     }
