@@ -69,7 +69,17 @@ codeunit 50104 "Seminar-Post"
 
     local procedure CopyCharges(FromNumber: Code[20]; ToNumber: Code[20])
     begin
-
+        SemCharge.Reset();
+        SemCharge.SetRange("Seminar Registration No", FromNumber);
+        if SemCharge.FindSet()
+        then begin
+            repeat
+                PstdSemCharge.Init();
+                PstdSemCharge.TransferFields(SemCharge); //Transfer all the fileds
+                PstdSemCharge."Seminar Registration No." := ToNumber;
+                PstdSemCharge.Insert();
+            until SemCharge.Next() = 0;
+        end;
     end;
 
     local procedure PostJobJnlLine(ChargeType: Option Participant,Charge): Integer

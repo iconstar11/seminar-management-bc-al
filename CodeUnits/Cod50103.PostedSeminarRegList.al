@@ -197,7 +197,7 @@ codeunit 50103 "Posted Seminar Reg.List"
                 PstdSemCharge."Gen. Prod. Posting Group" := SemCharge."Gen. Prod. Posting Group";
                 PstdSemCharge."VAT Prod. Posting Group" := SemCharge."VAT Prod. Posting Group";
                 PstdSemCharge."Qty. per Unit of Measure" := SemCharge."Qty. Per Unit of Measure";
-                PstdSemCharge.Registered := SemCharge.Registred;
+                PstdSemCharge.Registered := SemCharge.Registered;
 
                 PstdSemCharge.Insert();
             until SemCharge.Next() = 0;
