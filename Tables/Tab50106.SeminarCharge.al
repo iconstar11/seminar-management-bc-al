@@ -5,9 +5,9 @@ table 50106 "Seminar Charge"
 
     fields
     {
-        field(1; "Seminar Registration No"; Code[20])
+        field(1; "Seminar Registration No."; Code[20])
         {
-            Caption = 'Seminar Registration No';
+            Caption = 'Seminar Registration No.';
             TableRelation = "Seminar Registration Header";
             NotBlank = true;
         }
@@ -172,7 +172,7 @@ table 50106 "Seminar Charge"
     }
     keys
     {
-        key(PK; "Seminar Registration No", "Line No.")
+        key(PK; "Seminar Registration No.", "Line No.")
         {
             Clustered = true;
         }

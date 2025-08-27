@@ -149,7 +149,7 @@ page 50122 "Seminar Registration Card"
                 {
                     Caption = 'Charges';
                     RunObject = Page "Seminar Charges";
-                    RunPageLink = "Seminar Registration No" = field("No.");
+                    RunPageLink = "Seminar Registration No." = field("No.");
                     ApplicationArea = All;
                     RunPageMode = Edit;
                 }

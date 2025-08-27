@@ -70,7 +70,7 @@ codeunit 50104 "Seminar-Post"
     local procedure CopyCharges(FromNumber: Code[20]; ToNumber: Code[20])
     begin
         SemCharge.Reset();
-        SemCharge.SetRange("Seminar Registration No", FromNumber);
+        SemCharge.SetRange("Seminar Registration No.", FromNumber);
         if SemCharge.FindSet()
         then begin
             repeat
@@ -250,6 +250,28 @@ codeunit 50104 "Seminar-Post"
 
     local procedure PostCharge()
     begin
+
+        SemCharge.Reset();
+        SemCharge.SetRange("Seminar Registration No.", SemRegHeader."No.");
+
+        if SemCharge.FindSet() then begin
+            repeat
+                // Post Job Journal Line for this charge
+                JobLedgEntryNo := PostJobJnlLine(1);   // Charge
+
+
+
+                // Post Seminar Journal Line for this charge
+
+                SemLedgEntryNo := PostSeminarJnlLine(3);  // Charge
+
+
+                // Reset counters after posting
+                JobLedgEntryNo := 0;
+                SemLedgEntryNo := 0;
+            until SemCharge.Next() = 0;
+        end;
+
 
     end;
 

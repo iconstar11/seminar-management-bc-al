@@ -134,7 +134,7 @@ codeunit 50103 "Posted Seminar Reg.List"
         SemCommentLine.DeleteAll();
 
         SemCharge.Reset();
-        SemCharge.SetRange("Seminar Registration No", SemRegHeader."No.");
+        SemCharge.SetRange("Seminar Registration No.", SemRegHeader."No.");
         SemCharge.DeleteAll();
 
         SemRegLine.Reset();
@@ -175,7 +175,7 @@ codeunit 50103 "Posted Seminar Reg.List"
 
     begin
         SemCharge.Reset();
-        SemCharge.SetRange("Seminar Registration No", FromNumber);
+        SemCharge.SetRange("Seminar Registration No.", FromNumber);
         LineNo := 0;
 
         if SemCharge.FindSet() then
@@ -297,7 +297,7 @@ codeunit 50103 "Posted Seminar Reg.List"
     local procedure PostCharge()
     begin
         SemCharge.Reset();
-        SemCharge.SetRange("Seminar Registration No", SemRegHeader."No.");
+        SemCharge.SetRange("Seminar Registration No.", SemRegHeader."No.");
 
         if SemCharge.FindSet() then
             repeat

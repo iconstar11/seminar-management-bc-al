@@ -244,7 +244,7 @@ table 50105 "Seminar Registration Header"
                 if "Job No." <> xRec."Job No." then begin
                     OldJobNo := xRec."Job No.";
 
-                    SemCharge.SetRange("Seminar Registration No", "No.");
+                    SemCharge.SetRange("Seminar Registration No.", "No.");
                     SemCharge.SetRange("Job No.", OldJobNo);
 
                     if SemCharge.FindFirst() then
