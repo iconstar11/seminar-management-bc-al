@@ -2,6 +2,171 @@ codeunit 50104 "Seminar-Post"
 {
     TableNo = "Seminar Registration Header";
 
+    trigger OnRun()
+    begin
+        ClearAll();
+
+        // Set SemRegHeader to the current record
+        SemRegHeader := Rec;
+
+        // === Step 14B: Validate header fields ===
+        SemRegHeader.TestField("Posting Date");
+        SemRegHeader.TestField("Document Date");
+        SemRegHeader.TestField("Starting Date");
+        SemRegHeader.TestField("Seminar Code");
+        SemRegHeader.TestField(Duration);
+        SemRegHeader.TestField("Instructor Code");
+        SemRegHeader.TestField("Room Code");
+        SemRegHeader.TestField("Job No.");
+
+        if SemRegHeader.Status <> SemRegHeader.Status::Closed then
+            Error('Seminar %1 must be Closed before posting.', SemRegHeader."No.");
+
+        // === Step 14C: Validate linked Room and Instructor ===
+        if not SemRoom.Get(SemRegHeader."Room Code") then
+            Error('Room %1 does not exist.', SemRegHeader."Room Code");
+        SemRoom.TestField("Resource No.");
+
+        if not Instr.Get(SemRegHeader."Instructor Code") then
+            Error('Instructor %1 does not exist.', SemRegHeader."Instructor Code");
+        Instr.TestField("Resource No.");
+
+        // === Step 14D: Validate Seminar Registration Lines exist ===
+        SemRegLine.Reset();
+        SemRegLine.SetRange("Document No.", SemRegHeader."No.");
+        if not SemRegLine.FindFirst() then
+            Error('No seminar registration lines exist for Seminar %1.', SemRegHeader."No.");
+
+        // === Step 14E: Open progress dialog ===
+        Window.Open(
+            'Posting Seminar Registration...\\' +
+            'Document No.: #1##########\\' +
+            'Posting No.:  #2##########\\' +
+            'Lines Processed: #3##########'
+        );
+        Window.Update(1, SemRegHeader."No.");
+        Window.Update(2, ''); // will update after posted header insert
+        Window.Update(3, 0);
+
+        // === Step 14F: Assign Posting No. if missing ===
+        if SemRegHeader."Posting No." = '' then begin
+            SemRegHeader.TestField("Posting No. Series"); // must not be blank
+            SemRegHeader."Posting No." :=
+                NoSeriesMgt.GetNextNo(SemRegHeader."Posting No. Series", SemRegHeader."Posting Date", true);
+            ModifyHeader := true;
+        end;
+
+        // === Step 14G: Save Header and Commit ===
+        if ModifyHeader then
+            SemRegHeader.Modify();
+        COMMIT;
+
+        // === Step 14H: Record-level locking ===
+        SemRegLine.LockTable();
+        SemLedgEntry.LockTable();
+        if SemLedgEntry.FindLast() then
+            SemLedgEntryNo := SemLedgEntry."Entry No."
+        else
+            SemLedgEntryNo := 0;
+
+        // === Step 14I: Get Source Code from Source Code Setup ===
+        if not SourceCodeSetup.Get() then
+            Error('Source Code Setup is missing.');
+        SrcCode := SourceCodeSetup."Seminar";
+
+        // === Step 14J: Create Posted Seminar Reg. Header ===
+        PstdSemRegHeader.Init();
+        PstdSemRegHeader.TRANSFERFIELDS(SemRegHeader);
+
+        // Overwrite key fields
+        PstdSemRegHeader."No." := SemRegHeader."Posting No.";
+        PstdSemRegHeader."Registration No. Series" := SemRegHeader."No. Series";
+        PstdSemRegHeader."Registration No." := SemRegHeader."No.";
+
+        // Add posting metadata
+        PstdSemRegHeader."Source Code" := SrcCode;
+        PstdSemRegHeader."User ID" := UserId();
+
+        // Insert the record
+        PstdSemRegHeader.Insert();
+
+        // Update dialog with Posting No.
+        Window.Update(2, PstdSemRegHeader."No.");
+
+        // === Step 14K: Copy Related Data ===
+        CopyCommentLines(
+            SemCommentLine."Document Type"::"Seminar Registration",
+            SemCommentLine."Document Type"::"Posted Seminar Registration",
+            SemRegHeader."No.",
+            PstdSemRegHeader."No.");
+
+        CopyCharges(SemRegHeader."No.", PstdSemRegHeader."No.");
+
+        // === Step 14L: Post Each Registration Line ===
+        SemRegLine.Reset();
+        SemRegLine.SetRange("Document No.", SemRegHeader."No.");
+        if SemRegLine.FindSet() then begin
+            LineCount := 0;
+
+            repeat
+                LineCount += 1;
+                Window.Update(3, LineCount);
+
+                SemRegLine.TestField("Bill-to Customer No.");
+                SemRegLine.TestField("Participant Contact No.");
+
+                if not SemRegLine."To Invoice" then begin
+                    SemRegLine."Seminar Price" := 0;
+                    SemRegLine."Line Discount %" := 0;
+                    SemRegLine."Line Discount Amount" := 0;
+                    SemRegLine.Amount := 0;
+                end;
+
+                JobLedgEntryNo := PostJobJnlLine(JobChargeType::Participant);
+                SemLedgEntryNo := PostSeminarJnlLine(SemChargeType::Participant);
+
+                PstdSemRegLine.Init();
+                PstdSemRegLine.TRANSFERFIELDS(SemRegLine);
+                PstdSemRegLine."Document No." := PstdSemRegHeader."No.";
+                PstdSemRegLine.Insert();
+
+                JobLedgEntryNo := 0;
+                SemLedgEntryNo := 0;
+
+            until SemRegLine.Next() = 0;
+        end;
+
+        // === Step 14M: Post Charges, Instructor, and Room ===
+        PostCharge();
+        PostSeminarJnlLine(SemChargeType::Instructor);
+        PostSeminarJnlLine(SemChargeType::Room);
+
+        // === Step 14N: Cleanup ===
+        SemRegLine.LockTable();
+
+        SemRegLine.Reset();
+        SemRegLine.SetRange("Document No.", SemRegHeader."No.");
+        if SemRegLine.FindSet() then
+            SemRegLine.DeleteAll();
+
+        SemCommentLine.Reset();
+        SemCommentLine.SetRange("Document Type", SemCommentLine."Document Type"::"Seminar Registration");
+        SemCommentLine.SetRange("No.", SemRegHeader."No.");
+        if SemCommentLine.FindSet() then
+            SemCommentLine.DeleteAll();
+
+        SemCharge.Reset();
+        SemCharge.SetRange("Seminar Registration No.", SemRegHeader."No.");
+        if SemCharge.FindSet() then
+            SemCharge.DeleteAll();
+
+        SemRegHeader.Delete();
+        Rec := SemRegHeader;
+
+        // Close progress dialog
+        Window.Close();
+    end;
+
 
     //### GLOBAL VARIABLES  ######
 
@@ -46,6 +211,9 @@ codeunit 50104 "Seminar-Post"
         LineCount: Integer;
         JobLedgEntryNo: Integer;
         SemLedgEntryNo: Integer;
+
+        JobChargeType: Option Participant,Charge;
+        SemChargeType: Option Instructor,Room,Participant,Charge;
 
 
     local procedure CopyCommentLines(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
@@ -258,21 +426,13 @@ codeunit 50104 "Seminar-Post"
             repeat
                 // Post Job Journal Line for this charge
                 JobLedgEntryNo := PostJobJnlLine(1);   // Charge
-
-
-
                 // Post Seminar Journal Line for this charge
-
                 SemLedgEntryNo := PostSeminarJnlLine(3);  // Charge
-
-
                 // Reset counters after posting
                 JobLedgEntryNo := 0;
-                SemLedgEntryNo := 0;
+            // SemLedgEntryNo := 0;
             until SemCharge.Next() = 0;
         end;
-
-
     end;
 
 

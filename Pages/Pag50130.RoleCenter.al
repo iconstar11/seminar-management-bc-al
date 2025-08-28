@@ -39,6 +39,12 @@ page 50130 "Role Center"
             {
                 group(Seminars)
                 {
+                    action("Seminar Room")
+                    {
+                        Caption = 'Seminar Room';
+                        RunObject = page "Seminar Room card";
+                        ApplicationArea = all;
+                    }
                     action(Contact)
                     {
                         Caption = 'Contact';
