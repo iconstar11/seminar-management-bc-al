@@ -159,13 +159,14 @@ page 50122 "Seminar Registration Card"
                     ShortcutKey = 'F11';
                     Promoted = true;
                     PromotedCategory = Process;
+                    RunObject = codeunit "Seminar-Post (Yes/No)";
 
-                    trigger OnAction()
-                    var
-                        SeminarPost: Codeunit "Seminar-Post";
-                    begin
-                        SeminarPost.Run(Rec); // Rec = current Seminar Registration Header record
-                    end;
+                    // trigger OnAction()
+                    // var
+                    //     SeminarPost: Codeunit "Seminar-Post";
+                    // begin
+                    //     SeminarPost.Run(Rec); // Rec = current Seminar Registration Header record
+                    // end;
                 }
                 action(PrintSeminar)
                 {

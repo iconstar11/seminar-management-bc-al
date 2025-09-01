@@ -161,40 +161,40 @@ page 50104 "Seminar Card"
                               "No." = field("No.");
                 }
             }
-            action(CloseSeminar)
-            {
-                Caption = 'Close Seminar';
-                Image = Stop;
-                trigger OnAction()
-                var
-                    SeminarRec: Record "Seminar Registration Header";
+            // action(CloseSeminar)
+            // {
+            //     Caption = 'Close Seminar';
+            //     Image = Stop;
+            //     trigger OnAction()
+            //     var
+            //         SeminarRec: Record "Seminar Registration Header";
 
-                begin
-                    SeminarRec.Get(Rec."No.");
-                    SeminarRec.Status := SeminarRec.Status::Closed;
-                    SeminarRec.Modify();
-                    Message('Seminar %1 registration has been closed', SeminarRec."Seminar Name");
+            //     begin
+            //         SeminarRec.Get(Rec."No.");
+            //         SeminarRec.Status := SeminarRec.Status::Closed;
+            //         SeminarRec.Modify();
+            //         Message('Seminar %1 registration has been closed', SeminarRec."Seminar Name");
 
-                end;
+            //     end;
 
 
-            }
-            action(CheckSeminarState)
-            {
-                trigger OnAction()
-                var
-                    MaxCount: Integer;
-                    MinCount: Integer;
+            // }
+            // action(CheckSeminarState)
+            // {
+            //     trigger OnAction()
+            //     var
+            //         MaxCount: Integer;
+            //         MinCount: Integer;
 
-                begin
-                    MaxCount := Rec."Maximum Participants";
-                    MinCount := Rec."Minimum Participarts";
+            //     begin
+            //         MaxCount := Rec."Maximum Participants";
+            //         MinCount := Rec."Minimum Participarts";
 
-                    if MaxCount <= MinCount then
-                        Message('Max partipants cant be less to minparticipants');
-                end;
+            //         if MaxCount <= MinCount then
+            //             Message('Max partipants cant be less to minparticipants');
+            //     end;
 
-            }
+            // }
             action(OpenCommentsFromField)
             {
                 ApplicationArea = All;

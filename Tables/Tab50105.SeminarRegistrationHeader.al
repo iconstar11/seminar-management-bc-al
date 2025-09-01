@@ -101,21 +101,19 @@ table 50105 "Seminar Registration Header"
             FieldClass = FlowField;
             CalcFormula = lookup(Instructor.Name where(Code = field("Instructor Code")));
         }
-        field(7; Status; Option)
-        {
-            Caption = 'Status';
-            OptionMembers = Planning,Registration,Closed,Canceled;
-        }
-        field(8; "Duration"; Decimal)
+
+        field(7; "Duration"; Decimal)
         {
             Caption = 'Duration';
             DecimalPlaces = 0 : 1;
         }
-        field(9; "Maximum Participants"; Integer)
+
+
+        field(8; "Maximum Participants"; Integer)
         {
             Caption = 'Maximum Participants';
         }
-        field(28; "Minimum Participants"; Integer)
+        field(9; "Minimum Participants"; Integer)
         {
             Caption = 'Minimum Participants';
         }
@@ -335,6 +333,12 @@ table 50105 "Seminar Registration Header"
             Caption = 'Dimension Set ID';
             TableRelation = "Dimension Set Entry";
             Editable = false;
+        }
+
+        field(50; Status; Option)
+        {
+            Caption = 'Status';
+            OptionMembers = Planning,Registration,Closed,Canceled;
         }
 
 

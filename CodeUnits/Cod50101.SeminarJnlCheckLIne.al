@@ -31,19 +31,19 @@ codeunit 50101 "Seminar Jnl.-Check LIne"
             Error('Seminar No. must not be blank.');
 
         // 3. Charge Type dependent checks
-        case SemJnlLine."Charge Type" of
-            SemJnlLine."Charge Type"::Instructor:
-                if SemJnlLine."Instructor Code" = '' then
-                    Error('Instructor Code must not be blank for Instructor charges.');
+        // case SemJnlLine."Charge Type" of
+        //     SemJnlLine."Charge Type"::Instructor:
+        //         if SemJnlLine."Instructor Code" = '' then
+        //             Error('Instructor Code must not be blank for Instructor charges.');
 
-            SemJnlLine."Charge Type"::Room:
-                if SemJnlLine."Room Code" = '' then
-                    Error('Room Code must not be blank for Room charges.');
+        //     SemJnlLine."Charge Type"::Room:
+        //         if SemJnlLine."Room Code" = '' then
+        //             Error('Room Code must not be blank for Room charges.');
 
-            SemJnlLine."Charge Type"::Participant:
-                if SemJnlLine."Participant Contact No." = '' then
-                    Error('Participant Contact No. must not be blank for Participant charges.');
-        end;
+        //     SemJnlLine."Charge Type"::Participant:
+        //         if SemJnlLine."Participant Contact No." = '' then
+        //             Error('Participant Contact No. must not be blank for Participant charges.');
+        // end;
 
         if SemJnlLine.Chargeable and (SemJnlLine."Bill-to Customer No." = '') then
             Error('Bill-to Customer No. must not be blank for chargeable lines.');

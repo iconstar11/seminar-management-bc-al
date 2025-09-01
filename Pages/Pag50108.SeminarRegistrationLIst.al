@@ -60,7 +60,7 @@ page 50108 "Seminar Registration LIst"
             {
                 Caption = 'Post...';
                 ShortcutKey = 'F11';
-                RunObject = Codeunit "Seminar-Post";
+                RunObject = Codeunit "Seminar-Post (Yes/No)";
                 Ellipsis = true;
                 Promoted = true;
                 PromotedCategory = Process;

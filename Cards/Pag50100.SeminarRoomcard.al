@@ -92,11 +92,7 @@ page 50149 "Seminar Room card"
                 }
 
             }
-            part(Contact; "Seminar Contact")
-            {
-                ApplicationArea = Basic, Suite;
-                SubPageLink = "Seminar Room Code" = field(Code);
-            }
+
         }
 
     }

@@ -30,7 +30,7 @@ table 50121 "Seminar Register"
             Caption = 'Source Code';
             TableRelation = "Source Code";
         }
-        field(6; "User ID"; Code[20])
+        field(6; "User ID"; Code[50])
         {
             Caption = 'User ID';
             TableRelation = User;

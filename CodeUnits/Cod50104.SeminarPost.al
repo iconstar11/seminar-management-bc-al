@@ -31,6 +31,9 @@ codeunit 50104 "Seminar-Post"
             Error('Instructor %1 does not exist.', SemRegHeader."Instructor Code");
         Instr.TestField("Resource No.");
 
+        if not Job.Get(SemRegHeader."Job No.") then
+            Error('Job %1 does not exist.', SemRegHeader."Job No.");
+
         // === Step 14D: Validate Seminar Registration Lines exist ===
         SemRegLine.Reset();
         SemRegLine.SetRange("Document No.", SemRegHeader."No.");
@@ -76,7 +79,35 @@ codeunit 50104 "Seminar-Post"
 
         // === Step 14J: Create Posted Seminar Reg. Header ===
         PstdSemRegHeader.Init();
-        PstdSemRegHeader.TRANSFERFIELDS(SemRegHeader);
+        // PstdSemRegHeader.TRANSFERFIELDS(SemRegHeader, false);
+
+        PstdSemRegHeader."No." := SemRegHeader."Posting No."; // use posting no. as primary key
+        PstdSemRegHeader."Starting Date" := SemRegHeader."Starting Date";
+        PstdSemRegHeader."Seminar No." := SemRegHeader."Seminar Code";
+        PstdSemRegHeader."Seminar Name" := SemRegHeader."Seminar Name";
+        PstdSemRegHeader."Instructor Code" := SemRegHeader."Instructor Code";
+        PstdSemRegHeader."Duration" := SemRegHeader."Duration";
+        PstdSemRegHeader."Maximum Participants" := SemRegHeader."Maximum Participants";
+        PstdSemRegHeader."Minimum Participants" := SemRegHeader."Minimum Participants";
+        PstdSemRegHeader."Room Code" := SemRegHeader."Room Code";
+        PstdSemRegHeader."Room Name" := SemRegHeader."Room Name";
+        PstdSemRegHeader."Room Address" := SemRegHeader."Room Address";
+        PstdSemRegHeader."Room Address2" := SemRegHeader."Room Address2";
+        PstdSemRegHeader."Room Post Code" := SemRegHeader."Room Post Code";
+        PstdSemRegHeader."Room City" := SemRegHeader."Room City";
+        PstdSemRegHeader."Room Phone No." := SemRegHeader."Room Phone No.";
+        PstdSemRegHeader."Seminar Price" := SemRegHeader."Seminar Price";
+        PstdSemRegHeader."Gen. Prod. Posting Group" := SemRegHeader."Gen. Prod. Posting Group";
+        PstdSemRegHeader."VAT Prod. Posting Group" := SemRegHeader."VAT Prod. Posting Group";
+        PstdSemRegHeader.Comment := SemRegHeader.Comment;
+        PstdSemRegHeader."Posting Date" := SemRegHeader."Posting Date";
+        PstdSemRegHeader."Document Date" := SemRegHeader."Document Date";
+        PstdSemRegHeader."Job No." := SemRegHeader."Job No.";
+        PstdSemRegHeader."Reason Code" := SemRegHeader."Reason Code";
+        PstdSemRegHeader."No. Series" := SemRegHeader."No. Series";
+
+
+
 
         // Overwrite key fields
         PstdSemRegHeader."No." := SemRegHeader."Posting No.";
@@ -85,7 +116,7 @@ codeunit 50104 "Seminar-Post"
 
         // Add posting metadata
         PstdSemRegHeader."Source Code" := SrcCode;
-        PstdSemRegHeader."User ID" := UserId();
+        PstdSemRegHeader."User ID" := CopyStr(UserId, 1, MaxStrLen(PstdSemRegHeader."User ID"));
 
         // Insert the record
         PstdSemRegHeader.Insert();
@@ -172,6 +203,7 @@ codeunit 50104 "Seminar-Post"
 
     var
         // Seminar & Registration Records
+        SemSetup: Record "Seminar SetUp";
         SemRegHeader: Record "Seminar Registration Header";
         SemRegLine: Record "Seminar Registration Line";
         PstdSemRegHeader: Record "Posted Seminar Reg.Header";
@@ -207,10 +239,12 @@ codeunit 50104 "Seminar-Post"
         // My Defined Variables
         ModifyHeader: Boolean;
         Window: Dialog;
-        SrcCode: Code[10];
+        SrcCode: Code[50];
         LineCount: Integer;
         JobLedgEntryNo: Integer;
         SemLedgEntryNo: Integer;
+
+        ResourceNo: Code[20];
 
         JobChargeType: Option Participant,Charge;
         SemChargeType: Option Instructor,Room,Participant,Charge;
@@ -271,15 +305,34 @@ codeunit 50104 "Seminar-Post"
         if not Cust.Get(SemRegLine."Bill-to Customer No.") then
             Error('Customer %1 does not exist.', SemRegLine."Bill-to Customer No.");
 
+        if not Res.Get(Instr."Resource No.") then
+            Error('Resource %1 linked to Instructor %2 does not exist.', Instr."Resource No.", Instr.Code);
+
+        if Res."Base Unit of Measure" = '' then
+            Error('Resource %1 (%2) must have a Base Unit of Measure before posting.',
+                  Res."No.", Res.Name);
+        If Instr.GET(SemRegHeader."Instructor Code")
+                 THEN
+            ResourceNo := Instr."Resource No.";
+        IF Res.GET(ResourceNo)
+        then
+            SemSetup.Get();
+        SemSetup.TestField("Default Job Task No.");
+
         // ### Create and initialize Job Journal Line ###
         JobJnlLine.Init();
-        JobJnlLine."Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
+        JobJnlLine."Job No." := SemRegHeader."Job No.";
+        JobJnlLine."Job Task No." := SemSetup."Default Job Task No.";
+        JobJnlLine."Posting Date" := SemRegHeader."Posting Date";
+        JobJnlLine."Document Date" := SemRegHeader."Document Date";
+        JobJnlLine."Gen. prod. Posting Group" := Res."Gen. Prod. Posting Group";
         JobJnlLine."Entry Type" := JobJnlLine."Entry Type"::Usage;
         JobJnlLine."Document No." := PstdSemRegHeader."No.";
         JobJnlLine."Seminar Registration No." := PstdSemRegHeader."No.";
         JobJnlLine."Source Code" := SrcCode;
         JobJnlLine."Source Currency Total Cost" := SemRegLine."Seminar Price";
 
+        JobJnlLine."Unit of Measure Code" := Res."Base Unit of Measure";
         // ### ChargeType = Participant 
         if ChargeType = ChargeType::Participant
         then begin
@@ -293,7 +346,7 @@ codeunit 50104 "Seminar-Post"
             JobJnlLine."Total Price" := SemRegLine.Amount;
         end;
 
-        // ### ChargeType = Participant 
+        // ### ChargeType = Charge 
         if ChargeType = ChargeType::Charge
         then begin
             JobJnlLine.Description := SemCharge.Description;
@@ -336,7 +389,11 @@ codeunit 50104 "Seminar-Post"
     begin
         SemJnlLine.Init();
 
+        SemJnlLine."Seminar No." := SemRegHeader."Seminar Code";
+
+
         SemJnlLine."Document No." := PstdSemRegHeader."No.";
+        SemJnlLine."Job No." := SemRegHeader."Job No.";
         SemJnlLine."Seminar Registration No." := PstdSemRegHeader."No.";
         SemJnlLine."Posting Date" := SemRegHeader."Posting Date";
         SemJnlLine."Document Date" := SemRegHeader."Document Date";
@@ -350,12 +407,13 @@ codeunit 50104 "Seminar-Post"
 
         if ChargeType = ChargeType::Instructor
         then begin
-            if not Instr.Get(SemRegHeader."Instructor Code") then
-                Error('Instructor %1 does not exist.', SemRegHeader."Instructor Code");
+
+            SemJnlLine."Instructor Code" := SemRegHeader."Instructor Code";
             SemJnlLine.Description := Instr.Name;
             SemJnlLine.Type := SemJnlLine.Type::Resource;
             SemJnlLine.Chargeable := false;
             SemJnlLine.Quantity := SemRegHeader.Duration;
+
 
         end;
 
