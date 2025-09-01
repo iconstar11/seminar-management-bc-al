@@ -4,12 +4,15 @@ codeunit 50104 "Seminar-Post"
 
     trigger OnRun()
     begin
-        ClearAll();
+        ClearAll;
 
         // Set SemRegHeader to the current record
         SemRegHeader := Rec;
 
         // === Step 14B: Validate header fields ===
+        if SemRegHeader.IsEmpty() then
+            Error('SemRegHeader is empty at OnRun start. Rec.No.=%1', Rec."No.");
+
         SemRegHeader.TestField("Posting Date");
         SemRegHeader.TestField("Document Date");
         SemRegHeader.TestField("Starting Date");
@@ -79,7 +82,7 @@ codeunit 50104 "Seminar-Post"
 
         // === Step 14J: Create Posted Seminar Reg. Header ===
         PstdSemRegHeader.Init();
-        // PstdSemRegHeader.TRANSFERFIELDS(SemRegHeader, false);
+        // PstdSemRegHeader.TRANSFERFIELDS(SemRegHeader);
 
         PstdSemRegHeader."No." := SemRegHeader."Posting No."; // use posting no. as primary key
         PstdSemRegHeader."Starting Date" := SemRegHeader."Starting Date";
@@ -154,6 +157,7 @@ codeunit 50104 "Seminar-Post"
                 end;
 
                 JobLedgEntryNo := PostJobJnlLine(JobChargeType::Participant);
+                // ###Change to
                 SemLedgEntryNo := PostSeminarJnlLine(SemChargeType::Participant);
 
                 PstdSemRegLine.Init();
@@ -226,6 +230,7 @@ codeunit 50104 "Seminar-Post"
         JobLedgEntry: Record "Job Ledger Entry";
         SemLedgEntry: Record "Seminar Ledger Entry";
         JobJnlLine: Record "Job Journal Line";
+        JobJnlLine2: Record "Job Journal Line";
         SemJnlLine: Record "Seminar Journal Line";
 
         // Setup & Management Records
@@ -278,6 +283,10 @@ codeunit 50104 "Seminar-Post"
             repeat
                 PstdSemCharge.Init();
                 PstdSemCharge.TransferFields(SemCharge); //Transfer all the fileds
+
+
+
+
                 PstdSemCharge."Seminar Registration No." := ToNumber;
                 PstdSemCharge.Insert();
             until SemCharge.Next() = 0;
@@ -314,6 +323,7 @@ codeunit 50104 "Seminar-Post"
         If Instr.GET(SemRegHeader."Instructor Code")
                  THEN
             ResourceNo := Instr."Resource No.";
+
         IF Res.GET(ResourceNo)
         then
             SemSetup.Get();
@@ -323,6 +333,16 @@ codeunit 50104 "Seminar-Post"
         JobJnlLine.Init();
         JobJnlLine."Job No." := SemRegHeader."Job No.";
         JobJnlLine."Job Task No." := SemSetup."Default Job Task No.";
+        JobJnlLine."Journal Template Name" := SemSetup."Job Journal Template";
+
+
+        if JobJnlLine2.FindLast() then
+            JobJnlLine."Line No." := JobJnlLine2."Line No." + 10000
+        else
+            JobJnlLine."Line No." := 10000;
+
+        JobJnlLine."Line Type" := JobJnlLine."Line Type"::Billable;
+        JobJnlLine."Journal Batch Name" := SemSetup."Job Journal Batch";
         JobJnlLine."Posting Date" := SemRegHeader."Posting Date";
         JobJnlLine."Document Date" := SemRegHeader."Document Date";
         JobJnlLine."Gen. prod. Posting Group" := Res."Gen. Prod. Posting Group";
@@ -331,15 +351,25 @@ codeunit 50104 "Seminar-Post"
         JobJnlLine."Seminar Registration No." := PstdSemRegHeader."No.";
         JobJnlLine."Source Code" := SrcCode;
         JobJnlLine."Source Currency Total Cost" := SemRegLine."Seminar Price";
+        JobJnlLine."Total Cost" := SemRegLine."Seminar Price";
+
+        if Res."Base Unit of Measure" = '' then
+            Error(
+                'Resource %1 (%2) must have a Base Unit of Measure before posting.',
+                Res."No.", Res.Name);
 
         JobJnlLine."Unit of Measure Code" := Res."Base Unit of Measure";
+        JobJnlLine.Quantity := 1;
+        JobJnlLine."No." := Res."No.";
+
+
         // ### ChargeType = Participant 
         if ChargeType = ChargeType::Participant
         then begin
             JobJnlLine.Description := SemRegLine."Participant Name";
-            JobJnlLine."No." := Instr."Resource No.";
+            // JobJnlLine."No." := Instr."Resource No.";
             JobJnlLine.Chargeable := SemRegLine."To Invoice";
-            JobJnlLine.Quantity := 1;
+            // JobJnlLine.Quantity := 1;
             JobJnlLine."Unit Cost" := 0;
             JobJnlLine."Total Cost" := 0;
             JobJnlLine."Unit Price" := SemRegLine.Amount;
@@ -350,14 +380,16 @@ codeunit 50104 "Seminar-Post"
         if ChargeType = ChargeType::Charge
         then begin
             JobJnlLine.Description := SemCharge.Description;
+            // JobJnlLine."No." := SemCharge."No.";
             case SemCharge.Type of
 
                 // ##If Type = Resource
                 SemCharge.Type::Resource:
                     begin
                         JobJnlLine.Type := JobJnlLine.Type::Resource;
-                        JobJnlLine."Unit of Measure Code" := SemCharge."Unit Of Measure Code";
-                        JobJnlLine."Qty. per Unit of Measure" := SemCharge."Qty. per Unit of Measure";
+                        // JobJnlLine."Unit of Measure Code" := SemCharge."Unit Of Measure Code";
+                        // JobJnlLine."Qty. per Unit of Measure" := SemCharge."Qty. per Unit of Measure";
+                        // JobJnlLine.Quantity := SemCharge.Quantity;
                     end;
 
                 // ## If Type = Gl Account
@@ -368,8 +400,8 @@ codeunit 50104 "Seminar-Post"
                         JobJnlLine."Quantity (Base)" := 1;
                         JobJnlLine."Unit Cost" := 0;
                         JobJnlLine."Total Cost" := 0;
-                        JobJnlLine."No." := SemCharge."No.";
-                        JobJnlLine.Quantity := SemCharge.Quantity;
+                        // JobJnlLine."No." := SemCharge."No.";
+                        // JobJnlLine.Quantity := SemCharge.Quantity;
                         JobJnlLine."Unit Price" := SemCharge."Unit Price";
                         JobJnlLine."Total Price" := SemCharge."Total Price";
                     end;
@@ -398,6 +430,12 @@ codeunit 50104 "Seminar-Post"
         SemJnlLine."Posting Date" := SemRegHeader."Posting Date";
         SemJnlLine."Document Date" := SemRegHeader."Document Date";
         SemJnlLine."Source Code" := SrcCode;
+
+        SemJnlLine."Source Type" := SemJnlLine."Source Type"::Seminar;
+        SemJnlLine."Source No." := SemRegHeader."Seminar Code";
+        SemJnlLine."Reason Code" := SemRegHeader."Reason Code";
+        SemJnlLine."Posting No. Series" := SemRegHeader."Posting No. Series";
+
 
 
         SemJnlLine."Unit Price" := 0;
@@ -463,7 +501,10 @@ codeunit 50104 "Seminar-Post"
         end;
 
         // === Post the Seminar Journal Line ===
-        SemJnlPostLine.Run(SemJnlLine);
+        // SemJnlPostLine.Run(SemJnlLine);
+
+        SemJnlPostLine.RunWithCheck(SemJnlLine);
+
 
         // === Return last Seminar Ledger Entry No. ===
         if SemLedgEntry.FindLast() then
@@ -483,11 +524,15 @@ codeunit 50104 "Seminar-Post"
         if SemCharge.FindSet() then begin
             repeat
                 // Post Job Journal Line for this charge
-                JobLedgEntryNo := PostJobJnlLine(1);   // Charge
+                // JobLedgEntryNo := PostJobJnlLine(1);   // Charge
                 // Post Seminar Journal Line for this charge
-                SemLedgEntryNo := PostSeminarJnlLine(3);  // Charge
+                // SemLedgEntryNo := PostSeminarJnlLine(3);  // Charge
                 // Reset counters after posting
-                JobLedgEntryNo := 0;
+
+                JobLedgEntryNo := PostJobJnlLine(JobChargeType::Charge);
+                SemLedgEntryNo := PostSeminarJnlLine(SemChargeType::Charge);
+
+            // JobLedgEntryNo := 0;
             // SemLedgEntryNo := 0;
             until SemCharge.Next() = 0;
         end;

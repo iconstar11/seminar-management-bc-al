@@ -113,9 +113,9 @@ table 50109 "Seminar Journal Line"
             Caption = 'Source Type';
             OptionMembers = ,Seminar;
         }
-        field(25; "Sorce No."; Code[20])
+        field(25; "Source No."; Code[20])
         {
-            Caption = 'Sorce No.';
+            Caption = 'Source No.';
         }
         field(26; "Journal batch Name"; Code[10])
         {

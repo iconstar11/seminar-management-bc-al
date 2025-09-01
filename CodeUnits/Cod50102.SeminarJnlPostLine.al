@@ -34,6 +34,7 @@ codeunit 50102 "Seminar Jnl.-Post Line"
         LastRegister: Record "Seminar Register";
         TodayDate: Date;
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        Semsetup: Record "Seminar SetUp";
     begin
         // 1. Exit if line is empty
         if (SemJnlLine."Posting Date" = 0D) and (SemJnlLine."Document No." = '') then
@@ -81,10 +82,53 @@ codeunit 50102 "Seminar Jnl.-Post Line"
         SemReg.Modify();
 
         // 7. Insert new Seminar Ledger Entry
+        // SemLedgEntry.Init();
+
+        // SemLedgEntry.TransferFields(SemJnlLine);
+        // SemLedgEntry."Entry No." := NextEntryNo;
+        // SemLedgEntry.Insert();
+
         SemLedgEntry.Init();
-        SemLedgEntry."Entry No." := NextEntryNo;
-        SemLedgEntry.TransferFields(SemJnlLine);
+
+        // Always assign the Entry No. separately (NextEntryNo logic)
+        if SemLedgEntry.FindLast() then
+            SemLedgEntry."Entry No." := SemLedgEntry."Entry No." + 1
+        else
+            SemLedgEntry."Entry No." := 1;
+
+        // Map fields explicitly
+        SemLedgEntry."Seminar No." := SemJnlLine."Seminar No.";
+        SemLedgEntry."Posting Date" := SemJnlLine."Posting Date";
+        SemLedgEntry."Document Date" := SemJnlLine."Document Date";
+        SemLedgEntry."Entry Type" := SemJnlLine."Entry Type";
+        SemLedgEntry."Document No." := SemJnlLine."Document No.";
+        SemLedgEntry.Description := SemJnlLine.Description;
+        SemLedgEntry."Bill-to Customer No." := SemJnlLine."Bill-to Customer No.";
+        SemLedgEntry."Charge Type" := SemJnlLine."Charge Type";
+        SemLedgEntry."Type" := SemJnlLine."Type";
+        SemLedgEntry.Quantity := SemJnlLine.Quantity;
+        SemLedgEntry."Unit Price" := SemJnlLine."Unit Price";
+        SemLedgEntry."Total Price" := SemJnlLine."Total Price";
+        SemLedgEntry."Participant Contact No." := SemJnlLine."Participant Contact No.";
+        SemLedgEntry."Participant Name" := SemJnlLine."Participant Name";
+        SemLedgEntry.Chargeable := SemJnlLine.Chargeable;
+        SemLedgEntry."Room Code" := SemJnlLine."Room Code";
+        SemLedgEntry."Instructor Code" := SemJnlLine."Instructor Code";
+        SemLedgEntry."Starting Date" := SemJnlLine."Starting Date";
+        SemLedgEntry."Seminar Registration No." := SemJnlLine."Seminar Registration No.";
+        SemLedgEntry."Job No." := SemJnlLine."Job No.";
+        SemLedgEntry."Job Ledger Entry No." := SemJnlLine."Job Ledger Entry No.";
+        SemLedgEntry."Source Type" := SemJnlLine."Source Type";
+        SemLedgEntry."Source No." := SemJnlLine."Source No.";  // careful, your field is spelled "Sorce No."
+        SemLedgEntry."Journal Batch Name" := SemJnlLine."Journal batch Name";
+        SemLedgEntry."Source Code" := SemJnlLine."Source Code";
+        SemLedgEntry."Reason Code" := SemJnlLine."Reason Code";
+        SemLedgEntry."No. Series" := SemJnlLine."Posting No. Series";
+        SemLedgEntry."User ID" := CopyStr(UserId, 1, MaxStrLen(SemLedgEntry."User ID"));
+
+        // Insert the Ledger Entry
         SemLedgEntry.Insert();
+
 
         // 8. Increment entry counter
         NextEntryNo += 1;

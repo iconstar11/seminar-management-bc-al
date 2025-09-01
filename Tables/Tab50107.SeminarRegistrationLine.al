@@ -145,31 +145,31 @@ table 50107 "Seminar Registration Line"
             Caption = 'Registered';
             Editable = false;
         }
-        field(15; "Shortcut Dimension 1 Code"; Code[20])
-        {
-            Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code
-                where("Global Dimension No." = const(1));
-            CaptionClass = '1,2,1';
+        // field(15; "Shortcut Dimension 1 Code"; Code[20])
+        // {
+        //     Caption = 'Shortcut Dimension 1 Code';
+        //     TableRelation = "Dimension Value".Code
+        //         where("Global Dimension No." = const(1));
+        //     CaptionClass = '1,2,1';
 
-            trigger OnValidate()
-            begin
-                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
-            end;
-        }
+        //     trigger OnValidate()
+        //     begin
+        //         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+        //     end;
+        // }
 
-        field(16; "Shortcut Dimension 2 Code"; Code[20])
-        {
-            Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code
-                where("Global Dimension No." = const(2));
-            CaptionClass = '1,2,2';
+        // field(16; "Shortcut Dimension 2 Code"; Code[20])
+        // {
+        //     Caption = 'Shortcut Dimension 2 Code';
+        //     TableRelation = "Dimension Value".Code
+        //         where("Global Dimension No." = const(2));
+        //     CaptionClass = '1,2,2';
 
-            trigger OnValidate()
-            begin
-                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
-            end;
-        }
+        //     trigger OnValidate()
+        //     begin
+        //         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+        //     end;
+        // }
     }
     keys
     {
